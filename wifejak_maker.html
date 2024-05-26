@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wifejak Customizer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        canvas {
+            border: 1px solid #ccc;
+            margin-top: 20px;
+        }
+        .controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .controls > div {
+            margin-bottom: 10px;
+        }
+
+        /* Character Selection Styles */
+        #character-selection {
+            padding: 20px;
+            background-color: #f0f0f0;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        #background-selection {
+            padding: 20px;
+            background-color: #f0f0f0;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .character-icon {
+            width: 50px;
+            height: 50px;
+            margin: 10px;
+            cursor: pointer;
+        }
+
+        #upload-character {
+            margin-top: 20px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>Wifejak Customizer</h1>
+    <div class="controls">
+        <canvas id="characterCanvas" width="650" height="650"></canvas>
+
+        <!-- Character Selection Interface -->
+        <div id="character-selection">
+            <h3>Select Your Character</h3>
+            <div id="default-characters">
+                <!-- Add default character icons here -->
+                <img src="regular.png" alt="Default Character 1" class="character-icon" onclick="selectCharacter('regular.png')">
+                <img src="very-happy.png" alt="Default Character 2" class="character-icon" onclick="selectCharacter('very-happy.png')">
+                <!-- Add more default characters as needed -->
+            </div>
+        </div>
+        <div>
+            <label for="fileInput">Select Character Image:</label>
+            <input type="file" id="fileInput" accept="image/png">
+        </div>
+
+        <div id="background-selection">
+            <h3>Select Your Background</h3>
+            <label for="bgFileInput">Select Background Image:</label>
+            <input type="file" id="bgFileInput" accept="image/png">
+        </div>
+        <div>
+            <label for="skinColor">Skin Color:</label>
+            <input type="color" id="skinColor" value="#ffccaa">
+        </div>
+        <div>
+            <label for="hairColor">Hair Color:</label>
+            <input type="color" id="hairColor" value="#ff0000">
+        </div>
+        <div>
+            <label for="shirtColor">Shirt Color:</label>
+            <input type="color" id="shirtColor" value="#808080">
+        </div>
+        <div>
+            <label for="bgColor">Background Color:</label>
+            <input type="color" id="bgColor" value="#ab84e6">
+        </div>
+        <div>
+            <button id="saveBtn">Save Character</button>
+        </div>
+    </div>
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const bgFileInput = document.getElementById('bgFileInput');
+        const skinColorInput = document.getElementById('skinColor');
+        const hairColorInput = document.getElementById('hairColor');
+        const shirtColorInput = document.getElementById('shirtColor');
+        const bgColorInput = document.getElementById('bgColor');
+        const saveBtn = document.getElementById('saveBtn');
+        const canvas = document.getElementById('characterCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let characterImage = new Image();
+        let bgImage = new Image();
+        let originalPixels, imageData;
+        let alphaMap = [];
+        let offscreenCanvas = document.createElement('canvas');
+        let offscreenCtx = offscreenCanvas.getContext('2d');
+
+        fileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    characterImage.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        bgFileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    bgImage.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // JavaScript: Handle Character Selection and Upload
+
+        // Function to select a default character
+        // Function to select a default character
+        function selectCharacter(characterPath) {
+            // Set the selected character image to the chosen default character
+            characterImage.src = characterPath;
+            characterImage.onload = drawCanvas;
+        }
+
+
+        // Function to handle character upload
+        function uploadCharacter(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    // Set the selected character image to the uploaded file
+                    document.getElementById('character-image').src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+
+        characterImage.onload = () => {
+            drawCanvas();
+        };
+
+        bgImage.onload = () => {
+            drawCanvas();
+        };
+
+        const drawCanvas = () => {
+            if (bgImage.src) {
+                const { width, height } = getImageDimensions(bgImage, canvas.width, canvas.height);
+                canvas.width = width;
+                canvas.height = height;
+            }
+            if (characterImage.src) {
+                drawCharacterImage();
+            }
+        };
+
+        const drawCharacterImage = () => {
+            const { width, height } = getCharacterImageDimensions(characterImage, canvas.width, canvas.height);
+            const x = (canvas.width - width) / 2;
+            const y = canvas.height - height;
+            
+            offscreenCanvas.width = canvas.width;
+            offscreenCanvas.height = canvas.height;
+            
+            offscreenCtx.clearRect(0, 0, offscreenCanvas.width, offscreenCanvas.height);
+            offscreenCtx.drawImage(characterImage, x, y, width, height);
+            imageData = offscreenCtx.getImageData(x, y, width, height);
+            originalPixels = new Uint8ClampedArray(imageData.data);
+            createAlphaMap(x, y, width, height);
+            updateImage();
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (bgImage.src) {
+                const { width, height } = getImageDimensions(bgImage, canvas.width, canvas.height);
+                ctx.drawImage(bgImage, 0, 0, width, height);
+            } else {
+                ctx.fillStyle = bgColorInput.value;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+
+            ctx.drawImage(offscreenCanvas, 0, 0);
+        };
+
+        const createAlphaMap = (x, y, width, height) => {
+            alphaMap = new Uint8Array(width * height);
+            for (let i = 0; i < imageData.data.length; i += 4) {
+                const alpha = imageData.data[i + 3];
+                alphaMap[i / 4] = alpha > 0 ? 1 : 0;
+            }
+        };
+
+        const updateImage = () => {
+            if (imageData) {
+                imageData.data.set(originalPixels);
+
+                const skinColor = hexToRgb(skinColorInput.value);
+                const hairColor = hexToRgb(hairColorInput.value);
+                const shirtColor = hexToRgb(shirtColorInput.value);
+
+                for (let i = 0; i < originalPixels.length; i += 4) {
+                    const r = originalPixels[i];
+                    const g = originalPixels[i + 1];
+                    const b = originalPixels[i + 2];
+                    const a = originalPixels[i + 3];
+
+                    const alphaIndex = i / 4;
+                    if (alphaMap[alphaIndex] === 1) { // Only apply color shift if the pixel is not transparent
+                        if (isSkinColor(r, g, b)) {
+                            applyColorShift(i, skinColor);
+                        } else if (isHairColor(r, g, b)) {
+                            applyColorShift(i, hairColor);
+                        } else if (isShirtColor(r, g, b)) {
+                            applyColorShift(i, shirtColor);
+                        }
+                    }
+                }
+
+                const x = (canvas.width - imageData.width) / 2;
+                const y = canvas.height - imageData.height;
+                offscreenCtx.putImageData(imageData, x, y);
+            }
+        };
+
+        const hexToRgb = (hex) => {
+            const bigint = parseInt(hex.slice(1), 16);
+            return {
+                r: (bigint >> 16) & 255,
+                g: (bigint >> 8) & 255,
+                b: bigint & 255
+            };
+        };
+
+        const applyColorShift = (index, color) => {
+            imageData.data[index] = color.r;
+            imageData.data[index + 1] = color.g;
+            imageData.data[index + 2] = color.b;
+        };
+
+        const isSkinColor = (r, g, b) => {
+            return (r > 180 && r < 256) && (g > 180 && g < 256) && (b > 180 && b < 256);
+        };
+
+        const isHairColor = (r, g, b) => {
+            return (r > 120 && r < 200) && (g < 60) && (b < 60);
+        };
+
+        const isShirtColor = (r, g, b) => {
+            return (r > 150 && r < 190) && (g > 150 && g < 190) && (b > 150 && b < 190);
+        };
+
+        const getCharacterImageDimensions = (image, maxWidth, maxHeight) => {
+            const aspectRatio = image.width / image.height;
+
+            let width, height;
+            if (maxWidth / maxHeight > aspectRatio) {
+                height = maxHeight * 0.8;
+                width = height * aspectRatio;
+            } else {
+                width = maxWidth * 0.8;
+                height = width / aspectRatio;
+            }
+            return { width, height };
+        };
+
+        const getImageDimensions = (image, maxWidth, maxHeight) => {
+            const aspectRatio = image.width / image.height;
+
+            let width, height;
+            if (maxWidth / maxHeight > aspectRatio) {
+                height = maxHeight;
+                width = height * aspectRatio;
+            } else {
+                width = maxWidth;
+                height = width / aspectRatio;
+            }
+            return { width, height };
+        };
+
+        const saveCharacter = () => {
+            const link = document.createElement('a');
+            link.download = 'character.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        };
+
+        bgColorInput.addEventListener('input', drawCanvas);
+        skinColorInput.addEventListener('input', drawCanvas);
+        hairColorInput.addEventListener('input', drawCanvas);
+        shirtColorInput.addEventListener('input', drawCanvas);
+        saveBtn.addEventListener('click', saveCharacter);
+
+        // Initial background color update
+        drawCanvas();
+
+    </script>
+</body>
+</html>
