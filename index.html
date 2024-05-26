@@ -144,6 +144,10 @@
         let offscreenCanvas = document.createElement('canvas');
         let offscreenCtx = offscreenCanvas.getContext('2d');
 
+        // Initial canvas size setup
+        canvas.width = 650;
+        canvas.height = 650;
+
         fileInput.addEventListener('change', (event) => {
             const file = event.target.files[0];
             if (file && file.type.startsWith('image/')) {
@@ -176,7 +180,6 @@
             characterImage.onload = drawCanvas;
         }
 
-
         // Function to handle character upload
         function uploadCharacter(event) {
             const file = event.target.files[0];
@@ -190,7 +193,6 @@
             }
         }
 
-
         characterImage.onload = () => {
             drawCanvas();
         };
@@ -200,30 +202,6 @@
         };
 
         const drawCanvas = () => {
-            if (bgImage.src) {
-                const { width, height } = getImageDimensions(bgImage, canvas.width, canvas.height);
-                canvas.width = width;
-                canvas.height = height;
-            }
-            if (characterImage.src) {
-                drawCharacterImage();
-            }
-        };
-
-        const drawCharacterImage = () => {
-            const { width, height } = getCharacterImageDimensions(characterImage, canvas.width, canvas.height);
-            const x = (canvas.width - width) / 2;
-            const y = canvas.height - height;
-            
-            offscreenCanvas.width = canvas.width;
-            offscreenCanvas.height = canvas.height;
-            
-            offscreenCtx.clearRect(0, 0, offscreenCanvas.width, offscreenCanvas.height);
-            offscreenCtx.drawImage(characterImage, x, y, width, height);
-            imageData = offscreenCtx.getImageData(x, y, width, height);
-            originalPixels = new Uint8ClampedArray(imageData.data);
-            updateImage();
-
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             if (bgImage.src) {
@@ -234,9 +212,27 @@
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
             }
 
-            ctx.drawImage(offscreenCanvas, 0, 0);
+            if (characterImage.src) {
+                drawCharacterImage();
+            }
         };
 
+        const drawCharacterImage = () => {
+            const { width, height } = getCharacterImageDimensions(characterImage, canvas.width, canvas.height);
+            const x = (canvas.width - width) / 2;
+            const y = canvas.height - height;
+
+            offscreenCanvas.width = canvas.width;
+            offscreenCanvas.height = canvas.height;
+
+            offscreenCtx.clearRect(0, 0, offscreenCanvas.width, offscreenCanvas.height);
+            offscreenCtx.drawImage(characterImage, x, y, width, height);
+            imageData = offscreenCtx.getImageData(x, y, width, height);
+            originalPixels = new Uint8ClampedArray(imageData.data);
+            updateImage();
+
+            ctx.drawImage(offscreenCanvas, 0, 0);
+        };
 
         const updateImage = () => {
             if (imageData) {
@@ -346,6 +342,7 @@
 
         // Initial background color update
         drawCanvas();
+
 
     </script>
 </body>
