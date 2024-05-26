@@ -44,10 +44,18 @@
             text-align: center;
         }
 
-        .character-icon {
+        .character-icon-container {
             width: 50px;
             height: 50px;
             margin: 10px;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .character-icon {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
             cursor: pointer;
         }
 
@@ -68,10 +76,22 @@
             <h3>Select Your Character</h3>
             <div id="default-characters">
                 <!-- Add default character icons here -->
-                <img src="regular.png" alt="Default Character 1" class="character-icon" onclick="selectCharacter('regular.png')">
-                <img src="very-happy.png" alt="Default Character 2" class="character-icon" onclick="selectCharacter('very-happy.png')">
-                <!-- Add more default characters as needed -->
-            </div>
+                <div class="character-icon-container">
+                    <img src="regular.png" alt="Default Character 1" class="character-icon" onclick="selectCharacter('regular.png')">
+                </div>
+                <div class="character-icon-container">
+                    <img src="very-happy.png" alt="Default Character 2" class="character-icon" onclick="selectCharacter('very-happy.png')">
+                </div>
+                <div class="character-icon-container">
+                    <img src="laughing.png" alt="Default Character 4" class="character-icon" onclick="selectCharacter('laughing.png')">
+                </div>
+                <div class="character-icon-container">
+                    <img src="celebrating.png" alt="Default Character 3" class="character-icon" onclick="selectCharacter('celebrating.png')">
+                </div>
+                <div class="character-icon-container">
+                    <img src="crying.png" alt="Default Character 4" class="character-icon" onclick="selectCharacter('crying.png')">
+                </div>
+             </div>
         </div>
         <div>
             <label for="fileInput">Select Character Image:</label>
