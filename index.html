@@ -6,67 +6,105 @@
     <title>Wifejak Customizer</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
             margin: 0;
             padding: 20px;
             background-color: #f0f0f0;
+            color: #333;
         }
-        canvas {
-            border: 1px solid #ccc;
-            margin-top: 20px;
+        h1 {
+            font-size: 2em;
+            margin-bottom: 20px;
         }
         .controls {
             display: flex;
-            flex-direction: column;
-            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 1200px;
+            margin-top: 20px;
         }
-        .controls > div {
-            margin-bottom: 10px;
-        }
-
-        /* Character Selection Styles */
-        #character-selection, #background-selection {
-            padding: 20px;
-            background-color: #f0f0f0;
+        .control-panel {
+            flex: 1;
+            background-color: #fff;
             border-radius: 10px;
-            margin: 20px 0;
-            text-align: center;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin: 10px;
         }
-
+        .control-panel h3 {
+            margin-top: 0;
+        }
+        .icon-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
         .character-icon-container, .background-icon-container {
             width: 50px;
             height: 50px;
             margin: 10px;
             overflow: hidden;
             display: inline-block;
+            border-radius: 5px;
+            border: 1px solid #ccc;
         }
-
         .character-icon, .background-icon {
             width: 100%;
             height: 100%;
             object-fit: contain;
             cursor: pointer;
         }
-
-        #upload-character {
-            margin-top: 20px;
+        .color-picker {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+        }
+        .color-picker label {
+            margin-right: 10px;
+        }
+        .color-picker input {
+            width: 50px;
+            height: 30px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        canvas {
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            margin: 10px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
 <body>
 
     <h1>Wifejak Customizer</h1>
-    <div class="controls">
-        <canvas id="characterCanvas" width="650" height="650"></canvas>
 
-        <!-- Character Selection Interface -->
-        <div id="character-selection">
+    <canvas id="characterCanvas" width="650" height="650"></canvas>
+
+
+    <div class="controls">
+        <div class="control-panel" id="character-selection">
             <h3>Select Your Character</h3>
-            <div id="default-characters">
-                <!-- Add default character icons here -->
+            <div id="default-characters" class="icon-container">
                 <div class="character-icon-container">
                     <img src="regular.png" alt="Default Character 1" class="character-icon" onclick="selectCharacter('regular.png')">
                 </div>
@@ -74,25 +112,22 @@
                     <img src="very-happy.png" alt="Default Character 2" class="character-icon" onclick="selectCharacter('very-happy.png')">
                 </div>
                 <div class="character-icon-container">
-                    <img src="laughing.png" alt="Default Character 4" class="character-icon" onclick="selectCharacter('laughing.png')">
+                    <img src="laughing.png" alt="Default Character 3" class="character-icon" onclick="selectCharacter('laughing.png')">
                 </div>
                 <div class="character-icon-container">
-                    <img src="celebrating.png" alt="Default Character 3" class="character-icon" onclick="selectCharacter('celebrating.png')">
+                    <img src="celebrating.png" alt="Default Character 4" class="character-icon" onclick="selectCharacter('celebrating.png')">
                 </div>
                 <div class="character-icon-container">
-                    <img src="crying.png" alt="Default Character 4" class="character-icon" onclick="selectCharacter('crying.png')">
+                    <img src="crying.png" alt="Default Character 5" class="character-icon" onclick="selectCharacter('crying.png')">
                 </div>
-             </div>
-        </div>
-        <div>
+            </div>
             <label for="fileInput">Select Character Image:</label>
             <input type="file" id="fileInput" accept="image/png">
         </div>
 
-        <div id="background-selection">
+        <div class="control-panel" id="background-selection">
             <h3>Select Your Background</h3>
-            <div id="preset-backgrounds">
-                <!-- Add preset background icons here -->
+            <div id="preset-backgrounds" class="icon-container">
                 <div class="background-icon-container">
                     <img src="bg1.png" alt="Preset Background 1" class="background-icon" onclick="selectBackground('bg1.png')">
                 </div>
@@ -104,26 +139,26 @@
                 </div>
             </div>
             <label for="bgFileInput">Select Background Image:</label>
-            <input type="file" id="bgFileInput" accept="image/png">
-        </div>        
-        
-        <div>
-            <label for="skinColor">Skin Color:</label>
-            <input type="color" id="skinColor" value="#ffccaa">
+            <input type="file" id="bgFileInput" accept="image/png, image/jpeg">
         </div>
-        <div>
-            <label for="hairColor">Hair Color:</label>
-            <input type="color" id="hairColor" value="#ff0000">
-        </div>
-        <div>
-            <label for="shirtColor">Shirt Color:</label>
-            <input type="color" id="shirtColor" value="#808080">
-        </div>
-        <div>
-            <label for="bgColor">Background Color:</label>
-            <input type="color" id="bgColor" value="#ab84e6">
-        </div>
-        <div>
+
+        <div class="control-panel">
+            <div class="color-picker">
+                <label for="skinColor">Skin Color:</label>
+                <input type="color" id="skinColor" value="#ffccaa">
+            </div>
+            <div class="color-picker">
+                <label for="hairColor">Hair Color:</label>
+                <input type="color" id="hairColor" value="#ff0000">
+            </div>
+            <div class="color-picker">
+                <label for="shirtColor">Shirt Color:</label>
+                <input type="color" id="shirtColor" value="#808080">
+            </div>
+            <div class="color-picker">
+                <label for="bgColor">Backdrop Color:</label>
+                <input type="color" id="bgColor" value="#ab84e6">
+            </div>
             <button id="saveBtn">Save Character</button>
         </div>
     </div>
@@ -205,8 +240,8 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             if (bgImage.src) {
-                const { width, height } = getImageDimensions(bgImage, canvas.width, canvas.height);
-                ctx.drawImage(bgImage, 0, 0, width, height);
+                const { width, height, offsetX, offsetY } = getImageDimensions(bgImage, canvas.width, canvas.height);
+                ctx.drawImage(bgImage, -offsetX, -offsetY, width, height);
             } else {
                 ctx.fillStyle = bgColorInput.value;
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -216,6 +251,7 @@
                 drawCharacterImage();
             }
         };
+
 
         const drawCharacterImage = () => {
             const { width, height } = getCharacterImageDimensions(characterImage, canvas.width, canvas.height);
@@ -306,19 +342,28 @@
             return { width, height };
         };
 
-        const getImageDimensions = (image, maxWidth, maxHeight) => {
-            const aspectRatio = image.width / image.height;
+        const getImageDimensions = (image, canvasWidth, canvasHeight) => {
+            const imageAspectRatio = image.width / image.height;
+            const canvasAspectRatio = canvasWidth / canvasHeight;
 
-            let width, height;
-            if (maxWidth / maxHeight > aspectRatio) {
-                height = maxHeight;
-                width = height * aspectRatio;
+            let width, height, offsetX = 0, offsetY = 0;
+
+            if (imageAspectRatio > canvasAspectRatio) {
+                // Image is wider than canvas, crop the sides
+                height = canvasHeight;
+                width = height * imageAspectRatio;
+                offsetX = (width - canvasWidth) / 2;
             } else {
-                width = maxWidth;
-                height = width / aspectRatio;
+                // Image is taller than canvas, crop the top and bottom
+                width = canvasWidth;
+                height = width / imageAspectRatio;
+                offsetY = (height - canvasHeight) / 2;
             }
-            return { width, height };
+
+            return { width, height, offsetX, offsetY };
         };
+
+
 
         const saveCharacter = () => {
             const link = document.createElement('a');
