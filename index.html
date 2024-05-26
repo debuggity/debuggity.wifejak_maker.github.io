@@ -28,7 +28,7 @@
         }
 
         /* Character Selection Styles */
-        #character-selection {
+        #character-selection, #background-selection {
             padding: 20px;
             background-color: #f0f0f0;
             border-radius: 10px;
@@ -36,15 +36,7 @@
             text-align: center;
         }
 
-        #background-selection {
-            padding: 20px;
-            background-color: #f0f0f0;
-            border-radius: 10px;
-            margin: 20px 0;
-            text-align: center;
-        }
-
-        .character-icon-container {
+        .character-icon-container, .background-icon-container {
             width: 50px;
             height: 50px;
             margin: 10px;
@@ -52,7 +44,7 @@
             display: inline-block;
         }
 
-        .character-icon {
+        .character-icon, .background-icon {
             width: 100%;
             height: 100%;
             object-fit: contain;
@@ -62,7 +54,6 @@
         #upload-character {
             margin-top: 20px;
         }
-
     </style>
 </head>
 <body>
@@ -100,9 +91,22 @@
 
         <div id="background-selection">
             <h3>Select Your Background</h3>
+            <div id="preset-backgrounds">
+                <!-- Add preset background icons here -->
+                <div class="background-icon-container">
+                    <img src="bg1.png" alt="Preset Background 1" class="background-icon" onclick="selectBackground('bg1.png')">
+                </div>
+                <div class="background-icon-container">
+                    <img src="bg2.png" alt="Preset Background 2" class="background-icon" onclick="selectBackground('bg2.png')">
+                </div>
+                <div class="background-icon-container">
+                    <img src="bg3.png" alt="Preset Background 3" class="background-icon" onclick="selectBackground('bg3.png')">
+                </div>
+            </div>
             <label for="bgFileInput">Select Background Image:</label>
             <input type="file" id="bgFileInput" accept="image/png">
-        </div>
+        </div>        
+        
         <div>
             <label for="skinColor">Skin Color:</label>
             <input type="color" id="skinColor" value="#ffccaa">
@@ -137,7 +141,6 @@
         let characterImage = new Image();
         let bgImage = new Image();
         let originalPixels, imageData;
-        let alphaMap = [];
         let offscreenCanvas = document.createElement('canvas');
         let offscreenCtx = offscreenCanvas.getContext('2d');
 
@@ -154,10 +157,11 @@
 
         bgFileInput.addEventListener('change', (event) => {
             const file = event.target.files[0];
-            if (file && file.type.startsWith('image/')) {
+            if (file && (file.type === 'image/png' || file.type === 'image/jpeg')) {
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     bgImage.src = e.target.result;
+                    bgImage.onload = drawCanvas;
                 };
                 reader.readAsDataURL(file);
             }
@@ -165,7 +169,6 @@
 
         // JavaScript: Handle Character Selection and Upload
 
-        // Function to select a default character
         // Function to select a default character
         function selectCharacter(characterPath) {
             // Set the selected character image to the chosen default character
@@ -219,7 +222,6 @@
             offscreenCtx.drawImage(characterImage, x, y, width, height);
             imageData = offscreenCtx.getImageData(x, y, width, height);
             originalPixels = new Uint8ClampedArray(imageData.data);
-            createAlphaMap(x, y, width, height);
             updateImage();
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -235,13 +237,6 @@
             ctx.drawImage(offscreenCanvas, 0, 0);
         };
 
-        const createAlphaMap = (x, y, width, height) => {
-            alphaMap = new Uint8Array(width * height);
-            for (let i = 0; i < imageData.data.length; i += 4) {
-                const alpha = imageData.data[i + 3];
-                alphaMap[i / 4] = alpha > 0 ? 1 : 0;
-            }
-        };
 
         const updateImage = () => {
             if (imageData) {
@@ -257,8 +252,7 @@
                     const b = originalPixels[i + 2];
                     const a = originalPixels[i + 3];
 
-                    const alphaIndex = i / 4;
-                    if (alphaMap[alphaIndex] === 1) { // Only apply color shift if the pixel is not transparent
+                    if (a > 0) { // Only apply color shift if the pixel is not transparent
                         if (isSkinColor(r, g, b)) {
                             applyColorShift(i, skinColor);
                         } else if (isHairColor(r, g, b)) {
@@ -336,6 +330,13 @@
             link.href = canvas.toDataURL();
             link.click();
         };
+
+        // Function to select a preset background
+        function selectBackground(backgroundPath) {
+            // Set the selected background image to the chosen preset background
+            bgImage.src = backgroundPath;
+            bgImage.onload = drawCanvas;
+        }
 
         bgColorInput.addEventListener('input', drawCanvas);
         skinColorInput.addEventListener('input', drawCanvas);
