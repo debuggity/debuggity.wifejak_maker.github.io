@@ -120,6 +120,9 @@
                 <div class="character-icon-container">
                     <img src="crying.png" alt="Default Character 5" class="character-icon" onclick="selectCharacter('crying.png')">
                 </div>
+                <div class="character-icon-container">
+                    <img src="commando.png" alt="Default Character 6" class="character-icon" onclick="selectCharacter('commando.png')">
+                </div>
             </div>
             <label for="fileInput">Select Character Image:</label>
             <input type="file" id="fileInput" accept="image/png">
@@ -321,7 +324,7 @@
         };
 
         const isHairColor = (r, g, b) => {
-            return (r > 120 && r < 200) && (g < 60) && (b < 60);
+            return (r > 100 && r < 210) && (g < 65) && (b < 65);
         };
 
         const isShirtColor = (r, g, b) => {
