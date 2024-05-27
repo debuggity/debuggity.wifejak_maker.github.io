@@ -101,15 +101,81 @@
         .scale-slider input {
             width: 100%;
         }
+        .accessory-icon-container {
+            width: 50px; /* Adjust width if needed */
+            height: 50px; /* Adjust height if needed */
+            overflow: hidden;
+            display: inline-block;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-right: 10px; /* Ensure the gap between icons is correct */
+        }
 
+        .accessory-icon {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            cursor: pointer;
+        }
+
+        #removeAccessoriesBtn {
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-top: 10px;
+        }
+
+        #removeAccessoriesBtn:hover {
+            background-color: #cc0000;
+        }
+        .accessories-wrapper {
+            overflow-x: auto; /* This might be changed or kept based on your design needs */
+            display: flex;
+            justify-content: flex-start; /* Changed from center to flex-start for alignment */
+            flex-wrap: wrap; /* Allow items to wrap into the next line */
+            align-items: center;
+            margin-bottom: 10px;
+            width: 105%; /* Adjusted to full width to accommodate more space */
+            height: 220px; /* Enough height for two rows, adjust based on actual size needs */
+            white-space: nowrap; /* This can be removed as we are now wrapping items */
+            padding-bottom: 10px; /* To ensure the scrollbar does not hide the content */
+        }
+
+        .horizontal-scroll-container {
+            display: flex; /* Ensure this is set to flex for inline layout */
+            flex-wrap: wrap; /* Allow wrapping */
+            gap: 10px; /* Maintain gap between items */
+            padding: 5px; /* Adjust padding for internal spacing */
+        }
+        button#saveBtn {
+            background-color: transparent;
+            color: #333;
+            border: none;
+            cursor: pointer;
+            font-size: 2em;
+            position: fixed; /* Ensure it is fixed */
+            top: 20px; /* Position it 20px from the top */
+            right: 20px; /* Position it 20px from the right */
+            z-index: 1000; /* Ensure it stays on top of other elements */
+        }
+
+        button#saveBtn:hover {
+            color: #007bff;
+        }
     </style>
 </head>
 <body>
 
     <h1>Wifejak Customizer</h1>
+    <button id="saveBtn" style="position: absolute; top: 20px; right: 20px;">
+        &#x1F4BE; <!-- This is a floppy disk icon representing save -->
+    </button>
 
     <canvas id="characterCanvas" width="650" height="650"></canvas>
-
 
     <div class="controls">
         <div class="control-panel" id="character-selection">
@@ -122,16 +188,22 @@
                     <img src="very-happy.png" alt="Default Character 2" class="character-icon" onclick="selectCharacter('very-happy.png')">
                 </div>
                 <div class="character-icon-container">
-                    <img src="laughing.png" alt="Default Character 3" class="character-icon" onclick="selectCharacter('laughing.png')">
+                    <img src="celebrating.png" alt="Default Character 3" class="character-icon" onclick="selectCharacter('celebrating.png')">
                 </div>
                 <div class="character-icon-container">
-                    <img src="celebrating.png" alt="Default Character 4" class="character-icon" onclick="selectCharacter('celebrating.png')">
+                    <img src="crying.png" alt="Default Character 4" class="character-icon" onclick="selectCharacter('crying.png')">
                 </div>
                 <div class="character-icon-container">
-                    <img src="crying.png" alt="Default Character 5" class="character-icon" onclick="selectCharacter('crying.png')">
+                    <img src="hands-up.png" alt="Default Character 5" class="character-icon" onclick="selectCharacter('hands-up.png')">
                 </div>
                 <div class="character-icon-container">
                     <img src="commando.png" alt="Default Character 6" class="character-icon" onclick="selectCharacter('commando.png')">
+                </div>
+                <div class="character-icon-container">
+                    <img src="blushing.png" alt="Default Character 5" class="character-icon" onclick="selectCharacter('blushing.png')">
+                </div>
+                <div class="character-icon-container">
+                    <img src="eye-roll.png" alt="Default Character 6" class="character-icon" onclick="selectCharacter('eye-roll.png')">
                 </div>
             </div>
             <label for="fileInput">Select Character Image:</label>
@@ -176,8 +248,52 @@
                 <label for="bgColor">Backdrop Color:</label>
                 <input type="color" id="bgColor" value="#ab84e6">
             </div>
-            <button id="saveBtn">Save Character</button>
         </div>
+        <div class="control-panel" id="accessories-selection">
+            <h3>Select Accessories</h3>
+            <div class="accessories-wrapper">
+                <div id="accessories" class="horizontal-scroll-container">
+                    <div class="accessory-icon-container">
+                        <img src="accessories/sunglasses_1.png" alt="Accessory 1" class="accessory-icon" onclick="selectAccessory('accessories/sunglasses_1.png', 43.5, 48, 0.25, 0)">
+                    </div>
+                    <div class="accessory-icon-container">
+                        <img src="accessories/sunglasses_2.png" alt="Accessory 2" class="accessory-icon" onclick="selectAccessory('accessories/sunglasses_2.png', 43.5, 48.5, 0.25, 0)">
+                    </div>
+                    <div class="accessory-icon-container">
+                        <img src="accessories/sunglasses_3.png" alt="Accessory 1" class="accessory-icon" onclick="selectAccessory('accessories/sunglasses_3.png', 43.5, 48, 0.25, 0)">
+                    </div>
+                    <div class="accessory-icon-container">
+                        <img src="accessories/sunglasses_4.png" alt="Accessory 2" class="accessory-icon" onclick="selectAccessory('accessories/sunglasses_4.png', 43.5, 48.5, 0.25, 0)">
+                    </div>
+                    <div class="accessory-icon-container">
+                        <img src="accessories/hat_1.png" alt="Accessory 1" class="accessory-icon" onclick="selectAccessory('accessories/hat_1.png', 30, 20.5, 0.3, -17)">
+                    </div>
+                    <div class="accessory-icon-container">
+                        <img src="accessories/hat_2.png" alt="Accessory 2" class="accessory-icon" onclick="selectAccessory('accessories/hat_2.png', 30, 20.5, 0.3, -17)">
+                    </div>
+                    <div class="accessory-icon-container">
+                        <img src="accessories/hat_3.png" alt="Accessory 1" class="accessory-icon" onclick="selectAccessory('accessories/hat_3.png', 30, 20.5, 0.3, -17)">
+                    </div>
+                    <div class="accessory-icon-container">
+                        <img src="accessories/hat_4.png" alt="Accessory 2" class="accessory-icon" onclick="selectAccessory('accessories/hat_4.png', 30, 20.5, 0.3, -17)">
+                    </div>
+                    <div class="accessory-icon-container">
+                        <img src="accessories/hat_5.png" alt="Accessory 1" class="accessory-icon" onclick="selectAccessory('accessories/hat_5.png', 30, 20.5, 0.3, -17)">
+                    </div>
+                    <div class="accessory-icon-container">
+                        <img src="accessories/hat_6.png" alt="Accessory 2" class="accessory-icon" onclick="selectAccessory('accessories/hat_6.png', 30, 20.5, 0.3, -17)">
+                    </div>
+                    <div class="accessory-icon-container">
+                        <img src="accessories/hat_7.png" alt="Accessory 1" class="accessory-icon" onclick="selectAccessory('accessories/hat_7.png', 30, 20.5, 0.3, -17)">
+                    </div>
+                    <div class="accessory-icon-container">
+                        <img src="accessories/hat_8.png" alt="Accessory 2" class="accessory-icon" onclick="selectAccessory('accessories/hat_8.png', 30, 20.5, 0.3, -17)">
+                    </div>
+                </div>
+            </div>
+            <button id="removeAccessoriesBtn" onclick="removeAllAccessories()">Remove All Accessories</button>
+        </div>        
+              
     </div>
     <script>
         const fileInput = document.getElementById('fileInput');
@@ -189,6 +305,52 @@
         const saveBtn = document.getElementById('saveBtn');
         const canvas = document.getElementById('characterCanvas');
         const ctx = canvas.getContext('2d');
+
+        let accessories = [];
+
+        function selectAccessory(path, percentX, percentY, scale, angle) {
+            let accessoryImage = new Image();
+            accessoryImage.src = path;
+            accessoryImage.onload = () => {
+                accessories.push({ image: accessoryImage, x: percentX, y: percentY, scale: scale, angle: angle });
+                drawCanvas();
+            };
+        }
+
+        const drawAccessories = () => {
+            accessories.forEach(accessory => {
+                const x = (canvas.width * accessory.x) / 100;
+                const y = (canvas.height * accessory.y) / 100;
+                const { width, height } = getAccessoryImageDimensions(accessory.image, canvas.width * characterScale * accessory.scale, canvas.height * characterScale * accessory.scale);
+
+                ctx.save();
+                ctx.translate(x + width / 2, y + height / 2);
+                ctx.rotate(accessory.angle * Math.PI / 180);
+                ctx.drawImage(accessory.image, -width / 2, -height / 2, width, height);
+                ctx.restore();
+            });
+        };
+
+        const getAccessoryImageDimensions = (image, maxWidth, maxHeight) => {
+            const aspectRatio = image.width / image.height;
+
+            let width, height;
+            if (maxWidth / maxHeight > aspectRatio) {
+                height = maxHeight;
+                width = height * aspectRatio;
+            } else {
+                width = maxWidth;
+                height = width / aspectRatio;
+            }
+            return { width, height };
+        };
+
+        function removeAllAccessories() {
+            accessories = [];
+            drawCanvas();
+        }
+
+
 
         let characterImage = new Image();
         let bgImage = new Image();
@@ -267,6 +429,8 @@
             if (characterImage.src) {
                 drawCharacterImage();
             }
+
+            drawAccessories();
         };
 
 
@@ -390,14 +554,14 @@
             return { width, height, offsetX, offsetY };
         };
 
-
-
         const saveCharacter = () => {
+            drawCanvas(); // Ensure canvas is up-to-date
             const link = document.createElement('a');
             link.download = 'character.png';
-            link.href = canvas.toDataURL();
+            link.href = canvas.toDataURL('image/png');
             link.click();
         };
+
 
         // Function to select a preset background
         function selectBackground(backgroundPath) {
