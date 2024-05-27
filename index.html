@@ -254,40 +254,40 @@
             <div class="accessories-wrapper">
                 <div id="accessories" class="horizontal-scroll-container">
                     <div class="accessory-icon-container">
-                        <img src="accessories/sunglasses_1.png" alt="Accessory 1" class="accessory-icon" onclick="selectAccessory('accessories/sunglasses_1.png', 43.5, 48, 0.25, 0)">
+                        <img src="accessories/sunglasses_1.png" alt="Accessory 1" class="accessory-icon" onclick="selectAccessory('accessories/sunglasses_1.png', 42.5, 36, 0.32, 0)">
                     </div>
                     <div class="accessory-icon-container">
-                        <img src="accessories/sunglasses_2.png" alt="Accessory 2" class="accessory-icon" onclick="selectAccessory('accessories/sunglasses_2.png', 43.5, 48.5, 0.25, 0)">
+                        <img src="accessories/sunglasses_2.png" alt="Accessory 2" class="accessory-icon" onclick="selectAccessory('accessories/sunglasses_2.png', 41.5, 35, 0.32, 0)">
                     </div>
                     <div class="accessory-icon-container">
-                        <img src="accessories/sunglasses_3.png" alt="Accessory 1" class="accessory-icon" onclick="selectAccessory('accessories/sunglasses_3.png', 43.5, 48, 0.25, 0)">
+                        <img src="accessories/sunglasses_3.png" alt="Accessory 1" class="accessory-icon" onclick="selectAccessory('accessories/sunglasses_3.png', 41.5, 35, 0.32, 0)">
                     </div>
                     <div class="accessory-icon-container">
-                        <img src="accessories/sunglasses_4.png" alt="Accessory 2" class="accessory-icon" onclick="selectAccessory('accessories/sunglasses_4.png', 43.5, 48.5, 0.25, 0)">
+                        <img src="accessories/sunglasses_4.png" alt="Accessory 2" class="accessory-icon" onclick="selectAccessory('accessories/sunglasses_4.png', 41.5, 35, 0.32, 0)">
                     </div>
                     <div class="accessory-icon-container">
-                        <img src="accessories/hat_1.png" alt="Accessory 1" class="accessory-icon" onclick="selectAccessory('accessories/hat_1.png', 30, 20.5, 0.3, -17)">
+                        <img src="accessories/hat_1.png" alt="Accessory 1" class="accessory-icon" onclick="selectAccessory('accessories/hat_1.png', 30, 4.5, 0.3, -17)">
                     </div>
                     <div class="accessory-icon-container">
-                        <img src="accessories/hat_2.png" alt="Accessory 2" class="accessory-icon" onclick="selectAccessory('accessories/hat_2.png', 30, 21.5, 0.3, -17)">
+                        <img src="accessories/hat_2.png" alt="Accessory 2" class="accessory-icon" onclick="selectAccessory('accessories/hat_2.png', 30, 4.5, 0.3, -17)">
                     </div>
                     <div class="accessory-icon-container">
-                        <img src="accessories/hat_3.png" alt="Accessory 1" class="accessory-icon" onclick="selectAccessory('accessories/hat_3.png', 30, 21, 0.3, -17)">
+                        <img src="accessories/hat_3.png" alt="Accessory 1" class="accessory-icon" onclick="selectAccessory('accessories/hat_3.png', 30, 5, 0.3, -17)">
                     </div>
                     <div class="accessory-icon-container">
-                        <img src="accessories/hat_4.png" alt="Accessory 2" class="accessory-icon" onclick="selectAccessory('accessories/hat_4.png', 30, 20.5, 0.3, -17)">
+                        <img src="accessories/hat_4.png" alt="Accessory 2" class="accessory-icon" onclick="selectAccessory('accessories/hat_4.png', 30, 4.5, 0.3, -17)">
                     </div>
                     <div class="accessory-icon-container">
-                        <img src="accessories/hat_5.png" alt="Accessory 1" class="accessory-icon" onclick="selectAccessory('accessories/hat_5.png', 30, 21.5, 0.3, -17)">
+                        <img src="accessories/hat_5.png" alt="Accessory 1" class="accessory-icon" onclick="selectAccessory('accessories/hat_5.png', 30, 6, 0.3, -17)">
                     </div>
                     <div class="accessory-icon-container">
-                        <img src="accessories/hat_6.png" alt="Accessory 2" class="accessory-icon" onclick="selectAccessory('accessories/hat_6.png', 30, 20.5, 0.3, -17)">
+                        <img src="accessories/hat_6.png" alt="Accessory 2" class="accessory-icon" onclick="selectAccessory('accessories/hat_6.png', 30, 4.5, 0.3, -17)">
                     </div>
                     <div class="accessory-icon-container">
-                        <img src="accessories/hat_7.png" alt="Accessory 1" class="accessory-icon" onclick="selectAccessory('accessories/hat_7.png', 30, 20.5, 0.3, -17)">
+                        <img src="accessories/hat_7.png" alt="Accessory 1" class="accessory-icon" onclick="selectAccessory('accessories/hat_7.png', 30, 4.5, 0.3, -17)">
                     </div>
                     <div class="accessory-icon-container">
-                        <img src="accessories/hat_8.png" alt="Accessory 2" class="accessory-icon" onclick="selectAccessory('accessories/hat_8.png', 30, 20.5, 0.3, -17)">
+                        <img src="accessories/hat_8.png" alt="Accessory 2" class="accessory-icon" onclick="selectAccessory('accessories/hat_8.png', 30, 4.5, 0.3, -17)">
                     </div>
                 </div>
             </div>
@@ -312,16 +312,24 @@
             let accessoryImage = new Image();
             accessoryImage.src = path;
             accessoryImage.onload = () => {
-                accessories.push({ image: accessoryImage, x: percentX, y: percentY, scale: scale, angle: angle });
+                accessories.push({
+                    image: accessoryImage,
+                    originalX: percentX,
+                    originalY: percentY,
+                    scale: scale,
+                    angle: angle
+                });
                 drawCanvas();
             };
         }
 
-        const drawAccessories = () => {
+
+
+        const drawAccessories = (characterX, characterY, characterWidth, characterHeight) => {
             accessories.forEach(accessory => {
-                const x = (canvas.width * accessory.x) / 100;
-                const y = (canvas.height * accessory.y) / 100;
-                const { width, height } = getAccessoryImageDimensions(accessory.image, canvas.width * characterScale * accessory.scale, canvas.height * characterScale * accessory.scale);
+                const x = characterX + (characterWidth * accessory.originalX) / 100;
+                const y = characterY + (characterHeight * accessory.originalY) / 100;
+                const { width, height } = getAccessoryImageDimensions(accessory.image, characterWidth * accessory.scale, characterHeight * accessory.scale);
 
                 ctx.save();
                 ctx.translate(x + width / 2, y + height / 2);
@@ -330,6 +338,8 @@
                 ctx.restore();
             });
         };
+
+
 
         const getAccessoryImageDimensions = (image, maxWidth, maxHeight) => {
             const aspectRatio = image.width / image.height;
@@ -427,11 +437,24 @@
             }
 
             if (characterImage.src) {
-                drawCharacterImage();
-            }
+                const { width, height } = getCharacterImageDimensions(characterImage, canvas.width * characterScale, canvas.height * characterScale);
+                const x = (canvas.width - width) / 2;
+                const y = canvas.height - height;
 
-            drawAccessories();
+                offscreenCanvas.width = canvas.width;
+                offscreenCanvas.height = canvas.height;
+
+                offscreenCtx.clearRect(0, 0, offscreenCanvas.width, offscreenCanvas.height);
+                offscreenCtx.drawImage(characterImage, x, y, width, height);
+                imageData = offscreenCtx.getImageData(x, y, width, height);
+                originalPixels = new Uint8ClampedArray(imageData.data);
+                updateImage();
+
+                ctx.drawImage(offscreenCanvas, 0, 0);
+                drawAccessories(x, y, width, height); // Pass character dimensions to drawAccessories
+            }
         };
+
 
 
         const scaleRange = document.getElementById('scaleRange');
