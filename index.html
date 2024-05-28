@@ -33,6 +33,7 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             padding: 20px;
             margin: 10px;
+            position: relative; /* Add this line */
         }
         .control-panel h3 {
             margin-top: 0;
@@ -61,6 +62,7 @@
             display: flex;
             align-items: center;
             margin: 10px 0;
+            position: relative; /* Add this line */
         }
         .color-picker label {
             margin-right: 10px;
@@ -71,6 +73,7 @@
             border: 1px solid #ccc;
             border-radius: 5px;
             cursor: pointer;
+            margin-right: 60px;
         }
         canvas {
             border: 1px solid #ccc;
@@ -166,6 +169,42 @@
         button#saveBtn:hover {
             color: #007bff;
         }
+
+        .random-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: #ffc107;
+            border: none;
+            border-radius: 50%;
+            padding: 8px;
+            cursor: pointer;
+            font-size: 1.5em;
+            transform: translateY(-33%) scale(0.8);
+            transition: transform 0.2s;
+        }
+
+        .random-btn:hover {
+            transform: translateY(-33%) scale(.9);
+        }
+
+        #resetBtn {
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-top: 10px;
+        }
+
+        #resetBtn:hover {
+            background-color: #cc0000;
+        }
+
+</style>
+
     </style>
 </head>
 <body>
@@ -180,6 +219,7 @@
     <div class="controls">
         <div class="control-panel" id="character-selection">
             <h3>Select Your Character</h3>
+            <button class="random-btn" onclick="randomizeCharacter()">🎲</button>
             <div id="default-characters" class="icon-container">
                 <div class="character-icon-container">
                     <img src="regular.png" alt="Default Character 1" class="character-icon" onclick="selectCharacter('regular.png')">
@@ -216,6 +256,7 @@
 
         <div class="control-panel" id="background-selection">
             <h3>Select Your Background</h3>
+            <button class="random-btn" onclick="randomizeBackground()">🎲</button>
             <div id="preset-backgrounds" class="icon-container">
                 <div class="background-icon-container">
                     <img src="bg1.png" alt="Preset Background 1" class="background-icon" onclick="selectBackground('bg1.png')">
@@ -237,76 +278,116 @@
         <div class="control-panel">
             <div class="color-picker">
                 <label for="skinColor">Skin Color:</label>
+                <button class="random-btn" onclick="randomizeColor('skinColor')">🎲</button>
                 <input type="color" id="skinColor" value="#f7e8e8">
             </div>
             <div class="color-picker">
                 <label for="hairColor">Hair Color:</label>
+                <button class="random-btn" onclick="randomizeColor('hairColor')">🎲</button>
                 <input type="color" id="hairColor" value="#8e2a2a">
             </div>
             <div class="color-picker">
                 <label for="shirtColor">Shirt Color:</label>
+                <button class="random-btn" onclick="randomizeColor('shirtColor')">🎲</button>
                 <input type="color" id="shirtColor" value="#808080">
             </div>
             <div class="color-picker">
-                <label for="bgColor">Backdrop Color:</label>
+                <label for="bgColor">Background:</label>
+                <button class="random-btn" onclick="randomizeColor('bgColor')">🎲</button>
                 <input type="color" id="bgColor" value="#ab84e6">
             </div>
+            <button id="resetBtn">Reset to Default</button>
         </div>
         <div class="control-panel" id="accessories-selection">
             <h3>Select Accessories</h3>
+            <button class="random-btn" onclick="randomizeAccessory()">🎲</button>
             <div class="accessories-wrapper">
                 <div id="accessories" class="horizontal-scroll-container">
                     <div class="accessory-icon-container">
-                        <img src="accessories/sunglasses_1.png" alt="Accessory 1" class="accessory-icon" onclick="selectAccessory('accessories/sunglasses_1.png', 42.5, 36, 0.32, 0)">
+                        <img src="accessories/sunglasses_1.png" alt="Accessory 1" class="accessory-icon" 
+                             data-percent-x="42.5" data-percent-y="36" data-scale="0.32" data-angle="0" 
+                             onclick="selectAccessory(this)">
                     </div>
                     <div class="accessory-icon-container">
-                        <img src="accessories/sunglasses_2.png" alt="Accessory 2" class="accessory-icon" onclick="selectAccessory('accessories/sunglasses_2.png', 41.5, 35, 0.32, 0)">
+                        <img src="accessories/sunglasses_2.png" alt="Accessory 2" class="accessory-icon" 
+                             data-percent-x="41.5" data-percent-y="35" data-scale="0.32" data-angle="0" 
+                             onclick="selectAccessory(this)">
                     </div>
                     <div class="accessory-icon-container">
-                        <img src="accessories/sunglasses_3.png" alt="Accessory 1" class="accessory-icon" onclick="selectAccessory('accessories/sunglasses_3.png', 41.5, 35, 0.32, 0)">
+                        <img src="accessories/sunglasses_3.png" alt="Accessory 1" class="accessory-icon" 
+                             data-percent-x="41.5" data-percent-y="35" data-scale="0.32" data-angle="0" 
+                             onclick="selectAccessory(this)">
                     </div>
                     <div class="accessory-icon-container">
-                        <img src="accessories/sunglasses_4.png" alt="Accessory 2" class="accessory-icon" onclick="selectAccessory('accessories/sunglasses_4.png', 41.5, 35, 0.32, 0)">
+                        <img src="accessories/sunglasses_4.png" alt="Accessory 2" class="accessory-icon" 
+                             data-percent-x="41.5" data-percent-y="35" data-scale="0.32" data-angle="0" 
+                             onclick="selectAccessory(this)">
                     </div>
                     <div class="accessory-icon-container">
-                        <img src="accessories/hat_1.png" alt="Accessory 1" class="accessory-icon" onclick="selectAccessory('accessories/hat_1.png', 30, 4.5, 0.3, -17)">
+                        <img src="accessories/hat_1.png" alt="Accessory 1" class="accessory-icon" 
+                             data-percent-x="30" data-percent-y="4.5" data-scale="0.3" data-angle="-17" 
+                             onclick="selectAccessory(this)">
                     </div>
                     <div class="accessory-icon-container">
-                        <img src="accessories/hat_2.png" alt="Accessory 2" class="accessory-icon" onclick="selectAccessory('accessories/hat_2.png', 30, 4.5, 0.3, -17)">
+                        <img src="accessories/hat_2.png" alt="Accessory 2" class="accessory-icon" 
+                             data-percent-x="30" data-percent-y="4.5" data-scale="0.3" data-angle="-17" 
+                             onclick="selectAccessory(this)">
                     </div>
                     <div class="accessory-icon-container">
-                        <img src="accessories/hat_3.png" alt="Accessory 1" class="accessory-icon" onclick="selectAccessory('accessories/hat_3.png', 30, 5, 0.3, -17)">
+                        <img src="accessories/hat_3.png" alt="Accessory 1" class="accessory-icon" 
+                             data-percent-x="30" data-percent-y="5" data-scale="0.3" data-angle="-17" 
+                             onclick="selectAccessory(this)">
                     </div>
                     <div class="accessory-icon-container">
-                        <img src="accessories/hat_4.png" alt="Accessory 2" class="accessory-icon" onclick="selectAccessory('accessories/hat_4.png', 30, 4.5, 0.3, -17)">
+                        <img src="accessories/hat_4.png" alt="Accessory 2" class="accessory-icon" 
+                             data-percent-x="30" data-percent-y="4.5" data-scale="0.3" data-angle="-17" 
+                             onclick="selectAccessory(this)">
                     </div>
                     <div class="accessory-icon-container">
-                        <img src="accessories/hat_5.png" alt="Accessory 1" class="accessory-icon" onclick="selectAccessory('accessories/hat_5.png', 30, 6, 0.3, -17)">
+                        <img src="accessories/hat_5.png" alt="Accessory 1" class="accessory-icon" 
+                             data-percent-x="30" data-percent-y="6" data-scale="0.3" data-angle="-17" 
+                             onclick="selectAccessory(this)">
                     </div>
                     <div class="accessory-icon-container">
-                        <img src="accessories/hat_6.png" alt="Accessory 2" class="accessory-icon" onclick="selectAccessory('accessories/hat_6.png', 30, 4.5, 0.3, -17)">
+                        <img src="accessories/hat_6.png" alt="Accessory 2" class="accessory-icon" 
+                             data-percent-x="30" data-percent-y="4.5" data-scale="0.3" data-angle="-17" 
+                             onclick="selectAccessory(this)">
                     </div>
                     <div class="accessory-icon-container">
-                        <img src="accessories/hat_7.png" alt="Accessory 1" class="accessory-icon" onclick="selectAccessory('accessories/hat_7.png', 30, 4.5, 0.3, -17)">
+                        <img src="accessories/hat_7.png" alt="Accessory 1" class="accessory-icon" 
+                             data-percent-x="30" data-percent-y="4.5" data-scale="0.3" data-angle="-17" 
+                             onclick="selectAccessory(this)">
                     </div>
                     <div class="accessory-icon-container">
-                        <img src="accessories/hat_8.png" alt="Accessory 2" class="accessory-icon" onclick="selectAccessory('accessories/hat_8.png', 30, 4.5, 0.3, -17)">
+                        <img src="accessories/hat_8.png" alt="Accessory 2" class="accessory-icon" 
+                             data-percent-x="30" data-percent-y="4.5" data-scale="0.3" data-angle="-17" 
+                             onclick="selectAccessory(this)">
                     </div>
                     <div class="accessory-icon-container">
-                        <img src="accessories/beachball.png" alt="Accessory 2" class="accessory-icon" onclick="selectAccessory('accessories/beachball.png', 60, 74, 0.3, -17)">
+                        <img src="accessories/beachball.png" alt="Accessory 2" class="accessory-icon" 
+                             data-percent-x="60" data-percent-y="74" data-scale="0.3" data-angle="-17" 
+                             onclick="selectAccessory(this)">
                     </div>
                     <div class="accessory-icon-container">
-                        <img src="accessories/flipflops.png" alt="Accessory 2" class="accessory-icon" onclick="selectAccessory('accessories/flipflops.png', 60, 74, 0.3, -17)">
+                        <img src="accessories/flipflops.png" alt="Accessory 2" class="accessory-icon" 
+                             data-percent-x="60" data-percent-y="74" data-scale="0.3" data-angle="-17" 
+                             onclick="selectAccessory(this)">
                     </div>
                     <div class="accessory-icon-container">
-                        <img src="accessories/starfish.png" alt="Accessory 2" class="accessory-icon" onclick="selectAccessory('accessories/starfish.png', 30, 27, 0.18, -17)">
+                        <img src="accessories/starfish.png" alt="Accessory 2" class="accessory-icon" 
+                             data-percent-x="30" data-percent-y="27" data-scale="0.18" data-angle="-17" 
+                             onclick="selectAccessory(this)">
                     </div>
                     <div class="accessory-icon-container">
-                        <img src="accessories/surfboard.png" alt="Accessory 2" class="accessory-icon" onclick="selectAccessory('accessories/surfboard.png', 10, 30, 0.8, -17)">
+                        <img src="accessories/surfboard.png" alt="Accessory 2" class="accessory-icon" 
+                             data-percent-x="10" data-percent-y="30" data-scale="0.8" data-angle="-17" 
+                             onclick="selectAccessory(this)">
                     </div>
                     <div class="accessory-icon-container">
-                        <img src="accessories/surfboard2.png" alt="Accessory 2" class="accessory-icon" onclick="selectAccessory('accessories/surfboard2.png', 10, 30, 0.8, -17)">
-                    </div>
+                        <img src="accessories/surfboard2.png" alt="Accessory 2" class="accessory-icon" 
+                             data-percent-x="10" data-percent-y="30" data-scale="0.8" data-angle="-17" 
+                             onclick="selectAccessory(this)">
+                    </div>                    
                 </div>
             </div>
             <button id="removeAccessoriesBtn" onclick="removeAllAccessories()">Remove All Accessories</button>
@@ -324,9 +405,187 @@
         const canvas = document.getElementById('characterCanvas');
         const ctx = canvas.getContext('2d');
 
+        const resetBtn = document.getElementById('resetBtn');
+
+        resetBtn.addEventListener('click', () => {
+            skinColorInput.value = '#f7e8e8';
+            hairColorInput.value = '#8e2a2a';
+            shirtColorInput.value = '#808080';
+            bgColorInput.value = '#ab84e6';
+            drawCanvas();
+        });
+
+
+        function randomizeCharacter() {
+            const characterImages = ['regular.png', 'very-happy.png', 'celebrating.png', 'crying.png', 'hands-up.png', 'commando.png', 'blushing.png', 'eye-roll.png'];
+            rouletteAnimation(characterImages, selectCharacter);
+        }
+
+        function rouletteAnimation(options, callback) {
+            let index = 0;
+            const interval = setInterval(() => {
+                callback(options[index]);
+                index = (index + 1) % options.length;
+            }, 100);
+
+            setTimeout(() => {
+                clearInterval(interval);
+                const finalChoice = options[Math.floor(Math.random() * options.length)];
+                callback(finalChoice);
+            }, 2000); // Duration of the roulette effect
+        }
+
+        function randomizeBackground() {
+            const backgroundImages = ['bg1.png', 'bg2.png', 'bg3.png', 'bg4.png'];
+            rouletteAnimation(backgroundImages, selectBackground);
+        }
+
+        function randomizeAccessory() {
+            const accessoryElements = document.querySelectorAll('.accessory-icon');
+            const options = Array.from(accessoryElements).filter(el => !accessories.some(acc => acc.image.src === el.src));
+            rouletteAnimationForAccessories(options, previewAccessory);
+        }
+
+        function rouletteAnimationForAccessories(options, callback) {
+            let index = 0;
+            let currentAccessory = null;
+
+            // Define the range for the roulette duration (in milliseconds)
+            const minDuration = 1500; // Minimum duration for the roulette effect
+            const maxDuration = 3000; // Maximum duration for the roulette effect
+
+            // Generate a random duration within the specified range
+            const randomDuration = Math.floor(Math.random() * (maxDuration - minDuration + 1)) + minDuration;
+
+            const interval = setInterval(() => {
+                if (currentAccessory) {
+                    removePreviewAccessory(currentAccessory);
+                }
+                currentAccessory = options[index];
+                callback(currentAccessory, false);
+                index = (index + 1) % options.length;
+            }, 100);
+
+            setTimeout(() => {
+                clearInterval(interval);
+                if (currentAccessory) {
+                    removePreviewAccessory(currentAccessory);
+                }
+                const finalChoice = options[Math.floor(Math.random() * options.length)];
+                callback(finalChoice, true);
+            }, randomDuration); // Use the random duration for the roulette effect
+        }
+
+
+        function previewAccessory(element, isFinal) {
+            const accessoryImage = new Image();
+            accessoryImage.src = element.src;
+
+            const tempAccessory = {
+                image: accessoryImage,
+                originalX: parseFloat(element.dataset.percentX),
+                originalY: parseFloat(element.dataset.percentY),
+                scale: parseFloat(element.dataset.scale),
+                angle: parseFloat(element.dataset.angle)
+            };
+
+            // Temporarily add the selected accessory
+            accessories.push(tempAccessory);
+            drawCanvas();
+
+            // If it's not the final accessory, remove it after a short delay
+            if (!isFinal) {
+                setTimeout(() => {
+                    accessories = accessories.filter(accessory => accessory !== tempAccessory);
+                    drawCanvas();
+                }, 100); // Adjust the delay as needed for preview duration
+            }
+        }
+
+        function removePreviewAccessory(element) {
+            const accessoryImageSrc = element.src;
+            accessories = accessories.filter(accessory => accessory.image.src !== accessoryImageSrc);
+        }
+
+        function randomizeColor(colorInputId) {
+            const colorInput = document.getElementById(colorInputId);
+            let steps = 15; // Number of steps for the roulette animation
+            let stepDuration = 150; // Duration of each step in milliseconds
+
+            let interval = setInterval(() => {
+                const hue = Math.floor(Math.random() * 360); // Random hue value between 0 and 360
+                const saturation = Math.floor(Math.random() * 41) + 60; // Random saturation between 60% and 100%
+                const lightness = Math.floor(Math.random() * 31) + 40; // Random lightness between 40% and 70%
+                
+                const randomColor = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+                colorInput.value = hslToHex(hue, saturation, lightness);
+                drawCanvas();
+            }, stepDuration);
+
+            setTimeout(() => {
+                clearInterval(interval);
+
+                // Final random color
+                const finalHue = Math.floor(Math.random() * 360); // Random hue value between 0 and 360
+                const finalSaturation = Math.floor(Math.random() * 41) + 60; // Random saturation between 60% and 100%
+                const finalLightness = Math.floor(Math.random() * 31) + 40; // Random lightness between 40% and 70%
+                
+                const finalColor = `hsl(${finalHue}, ${finalSaturation}%, ${finalLightness}%)`;
+                colorInput.value = hslToHex(finalHue, finalSaturation, finalLightness);
+                drawCanvas();
+            }, steps * stepDuration);
+        }
+
+        function hslToHex(h, s, l) {
+            s /= 100;
+            l /= 100;
+            let c = (1 - Math.abs(2 * l - 1)) * s,
+                x = c * (1 - Math.abs((h / 60) % 2 - 1)),
+                m = l - c / 2,
+                r = 0,
+                g = 0,
+                b = 0;
+            if (0 <= h && h < 60) {
+                r = c;
+                g = x;
+                b = 0;
+            } else if (60 <= h && h < 120) {
+                r = x;
+                g = c;
+                b = 0;
+            } else if (120 <= h && h < 180) {
+                r = 0;
+                g = c;
+                b = x;
+            } else if (180 <= h && h < 240) {
+                r = 0;
+                g = x;
+                b = c;
+            } else if (240 <= h && h < 300) {
+                r = x;
+                g = 0;
+                b = c;
+            } else if (300 <= h && h < 360) {
+                r = c;
+                g = 0;
+                b = x;
+            }
+            r = Math.round((r + m) * 255).toString(16).padStart(2, '0');
+            g = Math.round((g + m) * 255).toString(16).padStart(2, '0');
+            b = Math.round((b + m) * 255).toString(16).padStart(2, '0');
+
+            return `#${r}${g}${b}`;
+        }
+
         let accessories = [];
 
-        function selectAccessory(path, percentX, percentY, scale, angle) {
+        function selectAccessory(element) {
+            const path = element.src;
+            const percentX = parseFloat(element.dataset.percentX);
+            const percentY = parseFloat(element.dataset.percentY);
+            const scale = parseFloat(element.dataset.scale);
+            const angle = parseFloat(element.dataset.angle);
+
             let accessoryImage = new Image();
             accessoryImage.src = path;
             accessoryImage.onload = () => {
@@ -341,8 +600,6 @@
             };
         }
 
-
-
         const drawAccessories = (characterX, characterY, characterWidth, characterHeight) => {
             accessories.forEach(accessory => {
                 const x = characterX + (characterWidth * accessory.originalX) / 100;
@@ -356,8 +613,6 @@
                 ctx.restore();
             });
         };
-
-
 
         const getAccessoryImageDimensions = (image, maxWidth, maxHeight) => {
             const aspectRatio = image.width / image.height;
