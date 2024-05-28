@@ -542,10 +542,30 @@
 
         function getRandomSkinTone() {
             const skinTones = [
-                '#FFDFC4', '#F0D5BE', '#E1B899', '#D1A36E',
-                '#B48653', '#8D5524', '#C68642', '#E0AC69',
-                '#F1C27D', '#FFDBAC'
+                '#FFDFC4', // Light Caucasian
+                '#F0D5BE', // Fair Caucasian
+                '#E1B899', // Beige Caucasian
+                '#D1A36E', // Light Tan Caucasian
+                '#B48653', // Medium Tan Caucasian
+                '#F3D1B8', // Light Peach
+                '#ECD2B0', // Peach
+                '#E6B89C', // Warm Beige
+                '#F0C6A8', // Light Warm Beige
+                '#FFDFC4', // Light Warm Caucasian
+                '#E5B78B', // Soft Beige
+                '#D9AB84', // Sandy Beige
+                '#D8A98B', // Soft Tan
+                '#C99473', // Medium Beige
+                '#C08063', // Medium Peach
+                '#AD7B5F', // Medium Warm
+                '#9A6D4E', // Dark Beige
+                '#8D5524', // Deep Tan Caucasian
+                '#C68642', // Bronze Tan
+                '#E0AC69', // Honey Beige
+                '#F1C27D', // Golden Beige
+                '#FFDBAC'  // Light Tan Caucasian
             ];
+
             return skinTones[Math.floor(Math.random() * skinTones.length)];
         }
 
@@ -792,11 +812,16 @@
                     const a = originalPixels[i + 3];
 
                     if (a > 0) { // Only apply color shift if the pixel is not transparent
-                        if (isSkinColor(r, g, b)) {
+                        
+                        if (isEyeColor(r, g, b)) {
+                            imageData.data[i] = 243;
+                            imageData.data[i + 1] = 236;
+                            imageData.data[i + 2] = 235;
+                        } else if (isSkinColor(r, g, b)) {
                             applyColorShift(i, skinColor);
                         } else if (isHairColor(r, g, b)) {
                             applyColorShift(i, hairColor);
-                        } else if (isShirtColor(r, g, b)) {
+                        } else if (isShirtColor(r, g, b) & i > (originalPixels.length*.63)) {
                             applyColorShift(i, shirtColor);
                         }
                     }
@@ -823,6 +848,10 @@
             imageData.data[index + 2] = color.b;
         };
 
+        const isEyeColor = (r, g, b) => {
+            return (r > 115 && r < 150) && (g > 220) && (b > 220);
+        };
+
         const isSkinColor = (r, g, b) => {
             return (r > 180 && r < 256) && (g > 180 && g < 256) && (b > 180 && b < 256);
         };
@@ -832,7 +861,7 @@
         };
 
         const isShirtColor = (r, g, b) => {
-            return (r > 150 && r < 190) && (g > 150 && g < 190) && (b > 150 && b < 190);
+            return (r > 150 && r < 190) && (g > 150 && g < 180) && (b > 150 && b < 180);
         };
 
         const getCharacterImageDimensions = (image, maxWidth, maxHeight) => {
