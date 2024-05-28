@@ -513,12 +513,15 @@
             let stepDuration = 150; // Duration of each step in milliseconds
 
             let interval = setInterval(() => {
-                const hue = Math.floor(Math.random() * 360); // Random hue value between 0 and 360
-                const saturation = Math.floor(Math.random() * 41) + 60; // Random saturation between 60% and 100%
-                const lightness = Math.floor(Math.random() * 31) + 40; // Random lightness between 40% and 70%
-                
-                const randomColor = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
-                colorInput.value = hslToHex(hue, saturation, lightness);
+                let randomColor;
+                if (colorInputId === 'skinColor' && Math.random() < 0.8) {
+                    // 80% chance to choose a skin tone
+                    randomColor = getRandomSkinTone();
+                } else {
+                    // 20% chance to choose a random color
+                    randomColor = getRandomColor();
+                }
+                colorInput.value = randomColor;
                 drawCanvas();
             }, stepDuration);
 
@@ -526,14 +529,32 @@
                 clearInterval(interval);
 
                 // Final random color
-                const finalHue = Math.floor(Math.random() * 360); // Random hue value between 0 and 360
-                const finalSaturation = Math.floor(Math.random() * 41) + 60; // Random saturation between 60% and 100%
-                const finalLightness = Math.floor(Math.random() * 31) + 40; // Random lightness between 40% and 70%
-                
-                const finalColor = `hsl(${finalHue}, ${finalSaturation}%, ${finalLightness}%)`;
-                colorInput.value = hslToHex(finalHue, finalSaturation, finalLightness);
+                let finalColor;
+                if (colorInputId === 'skinColor' && Math.random() < 0.8) {
+                    finalColor = getRandomSkinTone();
+                } else {
+                    finalColor = getRandomColor();
+                }
+                colorInput.value = finalColor;
                 drawCanvas();
             }, steps * stepDuration);
+        }
+
+        function getRandomSkinTone() {
+            const skinTones = [
+                '#FFDFC4', '#F0D5BE', '#E1B899', '#D1A36E',
+                '#B48653', '#8D5524', '#C68642', '#E0AC69',
+                '#F1C27D', '#FFDBAC'
+            ];
+            return skinTones[Math.floor(Math.random() * skinTones.length)];
+        }
+
+        function getRandomColor() {
+            const hue = Math.floor(Math.random() * 360); // Random hue value between 0 and 360
+            const saturation = Math.floor(Math.random() * 41) + 60; // Random saturation between 60% and 100%
+            const lightness = Math.floor(Math.random() * 31) + 40; // Random lightness between 40% and 70%
+            
+            return hslToHex(hue, saturation, lightness);
         }
 
         function hslToHex(h, s, l) {
