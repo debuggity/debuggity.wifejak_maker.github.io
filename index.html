@@ -551,6 +551,9 @@
                     <div class="background-icon-container">
                         <img src="bg4.png" alt="Preset Background 4" class="background-icon" onclick="selectBackground('bg4.png')">
                     </div>
+                    <div class="background-icon-container">
+                        <img src="bg5.png" alt="Preset Background 5" class="background-icon" onclick="selectBackground('bg5.png')">
+                    </div>
                 </div>
                 <label for="bgFileInput">Select Background Image:</label>
                 <input type="file" id="bgFileInput" accept="image/png, image/jpeg">
@@ -617,7 +620,7 @@
         }
 
         function randomizeBackground() {
-            const backgroundImages = ['bg1.png', 'bg2.png', 'bg3.png', 'bg4.png'];
+            const backgroundImages = ['bg1.png', 'bg2.png', 'bg3.png', 'bg4.png', 'bg5.png'];
             rouletteAnimation(backgroundImages, selectBackground);
         }
 
