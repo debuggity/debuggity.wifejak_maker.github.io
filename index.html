@@ -616,7 +616,7 @@
         const canvas = document.getElementById('characterCanvas');
         const ctx = canvas.getContext('2d');
 
-        function gigaRandom() {
+        async function gigaRandom() {
             removeAllAccessories();
             randomizeCharacter();
             randomizeBackground();
@@ -624,7 +624,7 @@
             // Generate a random number between 0 and 3 for the number of accessories to add
             const numAccessories = Math.floor(Math.random() * 4);
             for (let i = 0; i < numAccessories; i++) {
-                randomizeAccessory();
+                await randomizeAccessory();
             }
             
             randomizeColor('skinColor');
@@ -632,6 +632,7 @@
             randomizeColor('shirtColor');
             randomizeColor('bgColor');
         }
+
 
 
         const resetBtn = document.getElementById('resetBtn');
@@ -702,41 +703,45 @@
 
 
         function randomizeAccessory() {
-            const accessoryElements = document.querySelectorAll('.accessory-icon');
-            const options = Array.from(accessoryElements).filter(el => !accessories.some(acc => acc.image.src === el.src));
+            return new Promise((resolve) => {
+                const accessoryElements = document.querySelectorAll('.accessory-icon');
+                const options = Array.from(accessoryElements).filter(el => !accessories.some(acc => acc.image.src === el.src));
 
-            const maxRetries = 5;
-            let retries = 0;
+                const maxRetries = 5;
+                let retries = 0;
 
-            const tryAddAccessory = () => {
-                if (retries >= maxRetries) {
-                    console.log("Max retries reached, no suitable accessory found.");
-                    return;
-                }
-                
-                retries++;
-                rouletteAnimationForAccessories(options, (finalChoice) => {
-                    const accessoryImage = new Image();
-                    accessoryImage.src = finalChoice.src;
-
-                    const tempAccessory = {
-                        image: accessoryImage,
-                        originalX: parseFloat(finalChoice.dataset.percentX),
-                        originalY: parseFloat(finalChoice.dataset.percentY),
-                        scale: parseFloat(finalChoice.dataset.scale),
-                        angle: parseFloat(finalChoice.dataset.angle)
-                    };
-
-                    if (!isOverlapping(tempAccessory)) {
-                        accessories.push(tempAccessory);
-                        drawCanvas();
-                    } else {
-                        tryAddAccessory(); // Retry if there's an overlap
+                const tryAddAccessory = () => {
+                    if (retries >= maxRetries) {
+                        console.log("Max retries reached, no suitable accessory found.");
+                        resolve();
+                        return;
                     }
-                });
-            };
+                    
+                    retries++;
+                    rouletteAnimationForAccessories(options, (finalChoice) => {
+                        const accessoryImage = new Image();
+                        accessoryImage.src = finalChoice.src;
 
-            tryAddAccessory();
+                        const tempAccessory = {
+                            image: accessoryImage,
+                            originalX: parseFloat(finalChoice.dataset.percentX),
+                            originalY: parseFloat(finalChoice.dataset.percentY),
+                            scale: parseFloat(finalChoice.dataset.scale),
+                            angle: parseFloat(finalChoice.dataset.angle)
+                        };
+
+                        if (!isOverlapping(tempAccessory)) {
+                            accessories.push(tempAccessory);
+                            drawCanvas();
+                            resolve();
+                        } else {
+                            tryAddAccessory(); // Retry if there's an overlap
+                        }
+                    });
+                };
+
+                tryAddAccessory();
+            });
         }
 
         function rouletteAnimationForAccessories(options, callback) {
