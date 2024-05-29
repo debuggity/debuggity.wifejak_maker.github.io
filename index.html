@@ -328,9 +328,6 @@
             }
         }
 
-
-
-
 </style>
 
     </style>
@@ -403,6 +400,30 @@
                 <button class="random-btn" onclick="randomizeColor('bgColor')">🎲</button>
                 <input type="color" id="bgColor" value="#ab84e6">
             </div>
+
+             <!-- New section for image filters -->
+            <h3>Select Image Filter</h3>
+            <div class="filters-wrapper">
+                <div id="filters" class="horizontal-scroll-container">
+                    <div class="filter-icon-container" style="width: 50px; height: 50px; overflow: hidden; display: inline-block; border-radius: 5px; border: 1px solid #ccc; margin-right: 10px;">
+                        <img src="filters/old-timey.png" alt="Old Timey Filter" class="filter-icon" onclick="applyFilter('old-timey')">
+                    </div>
+                    <div class="filter-icon-container" style="width: 50px; height: 50px; display: inline-block; border-radius: 5px; border: 1px solid #ccc; margin-right: 10px; background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);" onclick="applyFilter('vintage')">
+                    </div>
+                    <div class="filter-icon-container" style="width: 50px; height: 50px; display: inline-block; border-radius: 5px; border: 1px solid #ccc; margin-right: 10px; background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);" onclick="applyFilter('retro')">
+                    </div>
+                    <div class="filter-icon-container" style="width: 50px; height: 50px; display: inline-block; border-radius: 5px; border: 1px solid #ccc; margin-right: 10px; background: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%);" onclick="applyFilter('black-and-white')">
+                    </div>
+                    <div class="filter-icon-container" style="width: 50px; height: 50px; display: inline-block; border-radius: 5px; border: 1px solid #ccc; margin-right: 10px; background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%);" onclick="applyFilter('sepia')">
+                    </div>
+                    <div class="filter-icon-container" style="width: 50px; height: 50px; display: inline-block; border-radius: 5px; border: 1px solid #ccc; margin-right: 10px; background: linear-gradient(135deg, #fddb92 0%, #d1fdff 100%);" onclick="applyFilter('cool')">
+                    </div>
+                    
+                    <!-- Add more filter icons here -->
+                </div>
+                
+            </div>
+
             <button id="resetBtn">Reset to Default</button>
         </div>
         <div class="control-panel" id="accessories-selection">
@@ -592,10 +613,15 @@
         const resetBtn = document.getElementById('resetBtn');
 
         resetBtn.addEventListener('click', () => {
+            // Reset color inputs to default values
             skinColorInput.value = '#f7e8e8';
             hairColorInput.value = '#8e2a2a';
             shirtColorInput.value = '#808080';
             bgColorInput.value = '#ab84e6';
+
+            // Reset the current filter to null
+            currentFilter = null;
+
             drawCanvas();
         });
 
@@ -926,9 +952,111 @@
             drawCanvas();
         };
 
+        // Filter application functions that modify image data directly
+        function applyFilterToImageData(imageData, filterFunction) {
+            const data = imageData.data;
+            filterFunction(data);
+            return imageData;
+        }
+
+        function applyOldTimeyFilter(data) {
+            for (let i = 0; i < data.length; i += 4) {
+                const r = data[i];
+                const g = data[i + 1];
+                const b = data[i + 2];
+                const gray = 0.3 * r + 0.59 * g + 0.11 * b;
+                data[i] = gray * 0.9;
+                data[i + 1] = gray * 0.7;
+                data[i + 2] = gray * 0.4;
+            }
+        }
+
+        function applyVintageFilter(data) {
+            for (let i = 0; i < data.length; i += 4) {
+                data[i] = data[i] * 0.9;
+                data[i + 1] = data[i + 1] * 0.85;
+                data[i + 2] = data[i + 2] * 0.75;
+            }
+        }
+
+        function applyRetroFilter(data) {
+            for (let i = 0; i < data.length; i += 4) {
+                data[i] = data[i] * 1.1;
+                data[i + 1] = data[i + 1] * 0.95;
+                data[i + 2] = data[i + 2] * 0.9;
+            }
+        }
+
+        function applyBlackAndWhiteFilter(data) {
+            for (let i = 0; i < data.length; i += 4) {
+                const gray = 0.3 * data[i] + 0.59 * data[i + 1] + 0.11 * data[i + 2];
+                data[i] = gray;
+                data[i + 1] = gray;
+                data[i + 2] = gray;
+            }
+        }
+
+        function applySepiaFilter(data) {
+            for (let i = 0; i < data.length; i += 4) {
+                const r = data[i];
+                const g = data[i + 1];
+                const b = data[i + 2];
+                data[i] = r * 0.393 + g * 0.769 + b * 0.189;
+                data[i + 1] = r * 0.349 + g * 0.686 + b * 0.168;
+                data[i + 2] = r * 0.272 + g * 0.534 + b * 0.131;
+            }
+        }
+
+        function applyCoolFilter(data) {
+            for (let i = 0; i < data.length; i += 4) {
+                data[i] = data[i] * 0.9;
+                data[i + 1] = data[i + 1] * 1.1;
+                data[i + 2] = data[i + 2] * 1.2;
+            }
+        }
+
+        let currentFilter = null;
+        let filterApplied = false;
+
+        // Main filter application function
+        function applyFilter(filterName) {
+            currentFilter = filterName;
+            drawCanvas();
+        }
+
+        function applyFilterToCanvas(filterName) {
+            const canvasImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+            switch (filterName) {
+                case 'old-timey':
+                    applyFilterToImageData(canvasImageData, applyOldTimeyFilter);
+                    break;
+                case 'vintage':
+                    applyFilterToImageData(canvasImageData, applyVintageFilter);
+                    break;
+                case 'retro':
+                    applyFilterToImageData(canvasImageData, applyRetroFilter);
+                    break;
+                case 'black-and-white':
+                    applyFilterToImageData(canvasImageData, applyBlackAndWhiteFilter);
+                    break;
+                case 'sepia':
+                    applyFilterToImageData(canvasImageData, applySepiaFilter);
+                    break;
+                case 'cool':
+                    applyFilterToImageData(canvasImageData, applyCoolFilter);
+                    break;
+                default:
+                    return;
+            }
+
+            ctx.putImageData(canvasImageData, 0, 0);
+        }
+
         const drawCanvas = () => {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+            // Draw the background first
             if (bgImage.src) {
                 const { width, height, offsetX, offsetY } = getImageDimensions(bgImage, canvas.width, canvas.height);
                 ctx.drawImage(bgImage, -offsetX, -offsetY, width, height);
@@ -937,6 +1065,7 @@
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
             }
 
+            // Draw the character image
             if (characterImage.src) {
                 const { width, height } = getCharacterImageDimensions(characterImage, canvas.width * characterScale, canvas.height * characterScale);
                 const x = (canvas.width - width) / 2;
@@ -944,17 +1073,46 @@
 
                 offscreenCanvas.width = canvas.width;
                 offscreenCanvas.height = canvas.height;
-
                 offscreenCtx.clearRect(0, 0, offscreenCanvas.width, offscreenCanvas.height);
                 offscreenCtx.drawImage(characterImage, x, y, width, height);
                 imageData = offscreenCtx.getImageData(x, y, width, height);
                 originalPixels = new Uint8ClampedArray(imageData.data);
-                updateImage();
 
+                updateImage();
                 ctx.drawImage(offscreenCanvas, 0, 0);
-                drawAccessories(x, y, width, height); // Pass character dimensions to drawAccessories
+
+                drawAccessories(x, y, width, height);
+
+                // Apply the currently selected filter to the entire canvas
+                if (currentFilter) {
+                    applyFilterToCanvas(currentFilter);
+                }
             }
+
+            filterApplied = false; // Reset flag after drawing
         };
+
+
+
+        function getFilterFunction(filterName) {
+            switch (filterName) {
+                case 'old-timey':
+                    return applyOldTimeyFilter;
+                case 'vintage':
+                    return applyVintageFilter;
+                case 'retro':
+                    return applyRetroFilter;
+                case 'black-and-white':
+                    return applyBlackAndWhiteFilter;
+                case 'sepia':
+                    return applySepiaFilter;
+                case 'cool':
+                    return applyCoolFilter;
+                default:
+                    return null;
+            }
+        }
+
 
 
 
