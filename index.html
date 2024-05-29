@@ -620,17 +620,16 @@
             removeAllAccessories();
             randomizeCharacter();
             randomizeBackground();
+            randomizeColor('skinColor');
+            randomizeColor('hairColor');
+            randomizeColor('shirtColor');
+            randomizeColor('bgColor');
             
             // Generate a random number between 0 and 3 for the number of accessories to add
             const numAccessories = Math.floor(Math.random() * 4);
             for (let i = 0; i < numAccessories; i++) {
                 await randomizeAccessory();
             }
-            
-            randomizeColor('skinColor');
-            randomizeColor('hairColor');
-            randomizeColor('shirtColor');
-            randomizeColor('bgColor');
         }
 
 
