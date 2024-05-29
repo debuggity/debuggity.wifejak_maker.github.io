@@ -668,21 +668,76 @@
             rouletteAnimation(backgroundImages, selectBackground);
         }
 
+        function isOverlapping(newAccessory) {
+            for (const accessory of accessories) {
+                const newAccessoryBounds = getAccessoryBounds(newAccessory);
+                const existingAccessoryBounds = getAccessoryBounds(accessory);
+                
+                if (newAccessoryBounds.x < existingAccessoryBounds.x + existingAccessoryBounds.width &&
+                    newAccessoryBounds.x + newAccessoryBounds.width > existingAccessoryBounds.x &&
+                    newAccessoryBounds.y < existingAccessoryBounds.y + existingAccessoryBounds.height &&
+                    newAccessoryBounds.y + newAccessoryBounds.height > existingAccessoryBounds.y) {
+                    return true; // There is overlap
+                }
+            }
+            return false; // No overlap
+        }
+
+        function getAccessoryBounds(accessory) {
+            const characterX = (canvas.width - characterImage.width) / 2;
+            const characterY = canvas.height - characterImage.height;
+            const x = characterX + (characterImage.width * accessory.originalX) / 100;
+            const y = characterY + (characterImage.height * accessory.originalY) / 100;
+            const { width, height } = getAccessoryImageDimensions(accessory.image, characterImage.width * accessory.scale, characterImage.height * accessory.scale);
+            
+            return { x, y, width, height };
+        }
+
+
         function randomizeAccessory() {
             const accessoryElements = document.querySelectorAll('.accessory-icon');
             const options = Array.from(accessoryElements).filter(el => !accessories.some(acc => acc.image.src === el.src));
-            rouletteAnimationForAccessories(options, previewAccessory);
+
+            const maxRetries = 5;
+            let retries = 0;
+
+            const tryAddAccessory = () => {
+                if (retries >= maxRetries) {
+                    console.log("Max retries reached, no suitable accessory found.");
+                    return;
+                }
+                
+                retries++;
+                rouletteAnimationForAccessories(options, (finalChoice) => {
+                    const accessoryImage = new Image();
+                    accessoryImage.src = finalChoice.src;
+
+                    const tempAccessory = {
+                        image: accessoryImage,
+                        originalX: parseFloat(finalChoice.dataset.percentX),
+                        originalY: parseFloat(finalChoice.dataset.percentY),
+                        scale: parseFloat(finalChoice.dataset.scale),
+                        angle: parseFloat(finalChoice.dataset.angle)
+                    };
+
+                    if (!isOverlapping(tempAccessory)) {
+                        accessories.push(tempAccessory);
+                        drawCanvas();
+                    } else {
+                        tryAddAccessory(); // Retry if there's an overlap
+                    }
+                });
+            };
+
+            tryAddAccessory();
         }
 
         function rouletteAnimationForAccessories(options, callback) {
             let index = 0;
             let currentAccessory = null;
 
-            // Define the range for the roulette duration (in milliseconds)
-            const minDuration = 1500; // Minimum duration for the roulette effect
-            const maxDuration = 3000; // Maximum duration for the roulette effect
-
-            // Generate a random duration within the specified range
+            const minDuration = 1500;
+            const maxDuration = 3000;
             const randomDuration = Math.floor(Math.random() * (maxDuration - minDuration + 1)) + minDuration;
 
             const interval = setInterval(() => {
@@ -690,7 +745,7 @@
                     removePreviewAccessory(currentAccessory);
                 }
                 currentAccessory = options[index];
-                callback(currentAccessory, false);
+                previewAccessory(currentAccessory, false);
                 index = (index + 1) % options.length;
             }, 100);
 
@@ -700,9 +755,11 @@
                     removePreviewAccessory(currentAccessory);
                 }
                 const finalChoice = options[Math.floor(Math.random() * options.length)];
-                callback(finalChoice, true);
-            }, randomDuration); // Use the random duration for the roulette effect
+                callback(finalChoice);
+            }, randomDuration);
         }
+
+
 
 
         function previewAccessory(element, isFinal) {
