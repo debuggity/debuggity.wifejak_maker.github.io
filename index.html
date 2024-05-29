@@ -620,12 +620,19 @@
             removeAllAccessories();
             randomizeCharacter();
             randomizeBackground();
-            randomizeAccessory();
+            
+            // Generate a random number between 0 and 3 for the number of accessories to add
+            const numAccessories = Math.floor(Math.random() * 4);
+            for (let i = 0; i < numAccessories; i++) {
+                randomizeAccessory();
+            }
+            
             randomizeColor('skinColor');
             randomizeColor('hairColor');
             randomizeColor('shirtColor');
             randomizeColor('bgColor');
         }
+
 
         const resetBtn = document.getElementById('resetBtn');
 
