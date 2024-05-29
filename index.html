@@ -155,9 +155,11 @@
         .horizontal-scroll-container {
             display: flex; /* Ensure this is set to flex for inline layout */
             flex-wrap: wrap; /* Allow wrapping */
-            gap: 10px; /* Maintain gap between items */
-            padding: 5px; /* Adjust padding for internal spacing */
+            gap: 5px; /* Maintain gap between items */
+            padding: 0px; /* Adjust padding for internal spacing */
+            width: 200px;
         }
+
         button#saveBtn {
             background-color: transparent;
             color: #333;
@@ -274,6 +276,17 @@
         #gigaRandomBtn:active {
             animation: rainbowBorder 2s linear infinite;
         }
+
+        #filters {
+            display: flex; /* Ensure this is set to flex for inline layout */
+            overflow-x: auto; /* Enable horizontal scrolling */
+            gap: 5px; /* Maintain gap between items */
+            padding: 5px; /* Adjust padding for internal spacing */
+            white-space: nowrap; /* Prevent line breaks */
+            height: 100px;
+            width: 215px;
+        }
+
 
         @keyframes rainbowBorder {
             0% {
@@ -417,6 +430,10 @@
                     <div class="filter-icon-container" style="width: 50px; height: 50px; display: inline-block; border-radius: 5px; border: 1px solid #ccc; margin-right: 10px; background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%);" onclick="applyFilter('sepia')">
                     </div>
                     <div class="filter-icon-container" style="width: 50px; height: 50px; display: inline-block; border-radius: 5px; border: 1px solid #ccc; margin-right: 10px; background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);" onclick="applyFilter('cool')">
+                    </div>
+                    <div class="filter-icon-container" style="width: 50px; height: 50px; display: inline-block; border-radius: 5px; border: 1px solid #ccc; margin-right: 10px; background: linear-gradient(135deg, #ffffff 0%, #0b374b 100%);" onclick="applyFilter('manga')">
+                    </div>
+                    <div class="filter-icon-container" style="width: 50px; height: 50px; display: inline-block; border-radius: 5px; border: 1px solid #ccc; margin-right: 10px; background: radial-gradient(circle, transparent 70%, black 100%);" onclick="applyFilter('vignette')">
                     </div>
                     
                     <!-- Add more filter icons here -->
@@ -621,6 +638,7 @@
 
             // Reset the current filter to null
             currentFilter = null;
+            vignetteEnabled = false;
 
             drawCanvas();
         });
@@ -959,7 +977,7 @@
                     return imageData;
                 }
 
-                function applyOldTimeyFilter(data) {
+        function applyOldTimeyFilter(data) {
             const width = canvas.width;
             const height = canvas.height;
 
@@ -986,21 +1004,6 @@
                 data[i] = Math.min(255, Math.max(0, data[i]));
                 data[i + 1] = Math.min(255, Math.max(0, data[i + 1]));
                 data[i + 2] = Math.min(255, Math.max(0, data[i + 2]));
-            }
-
-            // Apply vignette effect with smaller radius
-            for (let y = 0; y < height; y++) {
-                for (let x = 0; x < width; x++) {
-                    const dx = (x - width / 2) / (width / 3 * 2);  // Adjust the divisor to make the vignette smaller
-                    const dy = (y - height / 2) / (height / 3 * 2); // Adjust the divisor to make the vignette smaller
-                    const distance = Math.sqrt(dx * dx + dy * dy);
-                    const vignette = 1 - Math.pow(distance, 2);
-
-                    const index = (y * width + x) * 4;
-                    data[index] *= vignette;
-                    data[index + 1] *= vignette;
-                    data[index + 2] *= vignette;
-                }
             }
         }
 
@@ -1032,21 +1035,6 @@
                 data[i] = Math.min(255, Math.max(0, data[i] + noise));
                 data[i + 1] = Math.min(255, Math.max(0, data[i + 1] + noise));
                 data[i + 2] = Math.min(255, Math.max(0, data[i + 2] + noise));
-            }
-
-            // Apply a slight vignette effect
-            for (let y = 0; y < height; y++) {
-                for (let x = 0; x < width; x++) {
-                    const dx = (x - width / 2) / (width / 2);
-                    const dy = (y - height / 2) / (height / 2);
-                    const distance = Math.sqrt(dx * dx + dy * dy);
-                    const vignette = 1 - Math.pow(distance, 3); // Adjusting the power to make it more subtle
-
-                    const index = (y * width + x) * 4;
-                    data[index] *= vignette;
-                    data[index + 1] *= vignette;
-                    data[index + 2] *= vignette;
-                }
             }
         }
 
@@ -1099,49 +1087,6 @@
             }
         }
 
-        function drawTvFrame() {
-            const tvFrameWidth = canvas.width * 0.1;
-            const tvFrameHeight = canvas.height * 0.1;
-            const tvScreenX = tvFrameWidth;
-            const tvScreenY = tvFrameHeight;
-            const tvScreenWidth = canvas.width - 2 * tvFrameWidth;
-            const tvScreenHeight = canvas.height - 2 * tvFrameHeight;
-
-            // Draw the outer frame
-            ctx.fillStyle = "#3e3e3e"; // Dark grey color for the frame
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // Draw the inner screen area
-            ctx.clearRect(tvScreenX, tvScreenY, tvScreenWidth, tvScreenHeight);
-            ctx.strokeStyle = "#000"; // Black color for the inner screen border
-            ctx.lineWidth = 10; // Increase line width for better visibility
-            ctx.strokeRect(tvScreenX, tvScreenY, tvScreenWidth, tvScreenHeight);
-
-            // Draw the TV screen border
-            const borderWidth = 20; // Increase border width for better visibility
-            ctx.fillStyle = "#6b6b6b"; // Lighter grey for the screen border
-            ctx.fillRect(tvScreenX - borderWidth, tvScreenY - borderWidth, tvScreenWidth + 2 * borderWidth, tvScreenHeight + 2 * borderWidth);
-
-            // Draw knobs or controls on the TV frame (optional)
-            drawTvKnobs(tvScreenX, tvScreenY, tvScreenWidth, tvScreenHeight, borderWidth);
-        }
-
-        function drawTvKnobs(tvScreenX, tvScreenY, tvScreenWidth, tvScreenHeight, borderWidth) {
-            // Draw left knob
-            ctx.fillStyle = "#6b6b6b";
-            ctx.beginPath();
-            ctx.arc(tvScreenX - borderWidth - 30, tvScreenY + tvScreenHeight / 2, 20, 0, 2 * Math.PI);
-            ctx.fill();
-
-            // Draw right knob
-            ctx.beginPath();
-            ctx.arc(tvScreenX + tvScreenWidth + borderWidth + 30, tvScreenY + tvScreenHeight / 2, 20, 0, 2 * Math.PI);
-            ctx.fill();
-        }
-
-
-
-
         function applyBlackAndWhiteFilter(data) {
             for (let i = 0; i < data.length; i += 4) {
                 const gray = 0.3 * data[i] + 0.59 * data[i + 1] + 0.11 * data[i + 2];
@@ -1170,45 +1115,120 @@
             }
         }
 
+        function applyAnimeMangaFilter(data) {
+            const width = canvas.width;
+            const height = canvas.height;
+
+            for (let i = 0; i < data.length; i += 4) {
+                const r = data[i];
+                const g = data[i + 1];
+                const b = data[i + 2];
+
+                // Convert to grayscale
+                let gray = 0.3 * r + 0.59 * g + 0.11 * b;
+
+                // Enhance contrast
+                gray = (gray - 128) * 2 + 128;
+
+                // Apply some noise to add texture
+                const noise = (Math.random() - 0.5) * 20;
+                gray += noise;
+
+                // Apply a threshold effect but allow for intermediate grays
+                gray = Math.round(gray / 32) * 32;
+
+                data[i] = gray;     // Red channel
+                data[i + 1] = gray; // Green channel
+                data[i + 2] = gray; // Blue channel
+
+            }
+
+        }
+
+
+
+        function applyVignetteFilter(data) {
+            const width = canvas.width;
+            const height = canvas.height;
+
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    const dx = (x - width / 2) / (width / 3 * 2);  // Adjust the divisor to make the vignette smaller
+                    const dy = (y - height / 2) / (height / 3 * 2); // Adjust the divisor to make the vignette smaller
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    const vignette = 1 - Math.pow(distance, 3); // Adjusting the power to make it more subtle
+
+                    const index = (y * width + x) * 4;
+                    data[index] *= vignette;
+                    data[index + 1] *= vignette;
+                    data[index + 2] *= vignette;
+                }
+            }
+        }
+
         let currentFilter = null;
-        let filterApplied = false;
 
         // Main filter application function
         function applyFilter(filterName) {
+            if (filterName == 'vignette') {
+                toggleVignetteFilter();
+            }
             currentFilter = filterName;
             drawCanvas();
         }
 
-        function applyFilterToCanvas(filterName) {
+        function applyFilterToCanvas() {
             const canvasImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
-            switch (filterName) {
-                case 'old-timey':
-                    applyFilterToImageData(canvasImageData, applyOldTimeyFilter);
-                    break;
-                case 'vintage':
-                    applyFilterToImageData(canvasImageData, applyVintageFilter);
-                    break;
-                case 'retro':
-                    applyFilterToImageData(canvasImageData, applyRetroFilter);
-                    break;
-                case 'black-and-white':
-                    applyFilterToImageData(canvasImageData, applyBlackAndWhiteFilter);
-                    break;
-                case 'sepia':
-                    applyFilterToImageData(canvasImageData, applySepiaFilter);
-                    break;
-                case 'cool':
-                    applyFilterToImageData(canvasImageData, applyCoolFilter);
-                    break;
-                default:
-                    return;
+            if (currentFilter) {
+                switch (currentFilter) {
+                    case 'old-timey':
+                        applyFilterToImageData(canvasImageData, applyOldTimeyFilter);
+                        break;
+                    case 'vintage':
+                        applyFilterToImageData(canvasImageData, applyVintageFilter);
+                        break;
+                    case 'retro':
+                        applyFilterToImageData(canvasImageData, applyRetroFilter);
+                        break;
+                    case 'black-and-white':
+                        applyFilterToImageData(canvasImageData, applyBlackAndWhiteFilter);
+                        break;
+                    case 'sepia':
+                        applyFilterToImageData(canvasImageData, applySepiaFilter);
+                        break;
+                    case 'cool':
+                        applyFilterToImageData(canvasImageData, applyCoolFilter);
+                        break;
+                    case 'manga':
+                        applyFilterToImageData(canvasImageData, applyAnimeMangaFilter)
+                        break;
+                    default:
+                        return;
+                }
+            }
+
+            if (vignetteEnabled) {
+                applyVignetteFilter(canvasImageData.data);
             }
 
             ctx.putImageData(canvasImageData, 0, 0);
         }
 
-        const drawCanvas = () => {
+        let vignetteEnabled = false;
+
+        function toggleVignetteFilter() {
+            vignetteEnabled = !vignetteEnabled;
+            drawCanvas();
+        }
+
+        function applyVignetteFilterToCanvas() {
+            const canvasImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            applyVignetteFilter(canvasImageData.data);
+            ctx.putImageData(canvasImageData, 0, 0);
+        }
+
+        function drawCanvas() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             // Draw the background first
@@ -1242,29 +1262,19 @@
                 if (currentFilter) {
                     applyFilterToCanvas(currentFilter);
                 }
-            }
 
-            filterApplied = false; // Reset flag after drawing
-        };
-
-        function getFilterFunction(filterName) {
-            switch (filterName) {
-                case 'old-timey':
-                    return applyOldTimeyFilter;
-                case 'vintage':
-                    return applyVintageFilter;
-                case 'retro':
-                    return applyRetroFilter;
-                case 'black-and-white':
-                    return applyBlackAndWhiteFilter;
-                case 'sepia':
-                    return applySepiaFilter;
-                case 'cool':
-                    return applyCoolFilter;
-                default:
-                    return null;
+                // Always apply vignette filter if it's enabled
+                if (vignetteEnabled) {
+                    applyVignetteFilterToCanvas();
+                }
+            } else if (vignetteEnabled) {
+                // Apply vignette filter to the base background if no character image is selected
+                applyVignetteFilterToCanvas();
             }
         }
+
+
+
 
         const scaleRange = document.getElementById('scaleRange');
 
@@ -1316,7 +1326,7 @@
                             applyColorShift(i, skinColor);
                         } else if (isHairColor(r, g, b)) {
                             applyColorShift(i, hairColor);
-                        } else if (isShirtColor(r, g, b) & i > (originalPixels.length*.63)) {
+                        } else if (isShirtColor(r, g, b) & i > (originalPixels.length * .63)) {
                             applyColorShift(i, shirtColor);
                         }
                     }
@@ -1327,6 +1337,7 @@
                 offscreenCtx.putImageData(imageData, x, y);
             }
         };
+
 
         const hexToRgb = (hex) => {
             const bigint = parseInt(hex.slice(1), 16);
