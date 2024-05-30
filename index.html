@@ -917,6 +917,9 @@
                 if (colorInputId === 'skinColor' && Math.random() < 0.85) {
                     // 85% chance to choose a skin tone
                     randomColor = getRandomSkinTone();
+                } else if (colorInputId === 'hairColor' && Math.random() < 0.85) {
+                    // 85% chance to choose a beautiful hair color
+                    randomColor = getRandomHairColor();
                 } else {
                     // 15% chance to choose a random color
                     randomColor = getRandomColor();
@@ -932,6 +935,8 @@
                 let finalColor;
                 if (colorInputId === 'skinColor' && Math.random() < 0.8) {
                     finalColor = getRandomSkinTone();
+                } else if (colorInputId === 'hairColor' && Math.random() < 0.8) {
+                    finalColor = getRandomHairColor();
                 } else {
                     finalColor = getRandomColor();
                 }
@@ -939,6 +944,11 @@
                 drawCanvas();
             }, steps * stepDuration);
         }
+
+        function getRandomHairColor() {
+            return hairColors[Math.floor(Math.random() * hairColors.length)];
+        }
+
 
         function getRandomSkinTone() {
             const skinTones = [
@@ -971,6 +981,43 @@
 
             return skinTones[Math.floor(Math.random() * skinTones.length)];
         }
+
+        const hairColors = [
+            '#000000', // Black
+            '#2c2c2c', // Dark Brown
+            '#654321', // Chestnut Brown
+            '#8b4513', // Saddle Brown
+            '#a52a2a', // Red Brown
+            '#d2b48c', // Tan
+            '#f4a460', // Sandy Brown
+            '#c8a2c8', // Lilac
+            '#ff4500', // Orange Red
+            '#ffa500', // Orange
+            '#ff8c00', // Dark Orange
+            '#ffdab9', // Peach
+            '#ff69b4', // Hot Pink
+            '#ff1493', // Deep Pink
+            '#800080', // Purple
+            '#4b0082', // Indigo
+            '#6a5acd', // Slate Blue
+            '#483d8b', // Dark Slate Blue
+            '#4169e1', // Royal Blue
+            '#1e90ff', // Dodger Blue
+            '#00ced1', // Dark Turquoise
+            '#40e0d0', // Turquoise
+            '#00ff7f', // Spring Green
+            '#32cd32', // Lime Green
+            '#7fff00', // Chartreuse
+            '#8b4513', // Saddle Brown
+            '#d2691e', // Chocolate
+            '#ff6347', // Tomato
+            '#cd5c5c', // Indian Red
+            '#f08080', // Light Coral
+            '#e9967a', // Dark Salmon
+            '#fa8072', // Salmon
+            '#ffa07a', // Light Salmon
+        ];
+
 
         function getRandomColor() {
             const hue = Math.floor(Math.random() * 360); // Random hue value between 0 and 360
