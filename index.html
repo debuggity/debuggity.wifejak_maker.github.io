@@ -730,7 +730,15 @@
         async function gigaRandom() {
             removeAllAccessories();
             randomizeCharacter();
-            randomizeBackground();
+            
+            // 20% chance to remove the background
+            if (Math.random() < 0.20) {
+                bgImage.src = '';
+                drawCanvas(); // Redraw the canvas to apply the change immediately
+            } else {
+                randomizeBackground();
+            }
+
             randomizeColor('skinColor');
             randomizeColor('hairColor');
             randomizeColor('shirtColor');
@@ -983,7 +991,6 @@
         }
 
         const hairColors = [
-            '#000000', // Black
             '#2c2c2c', // Dark Brown
             '#654321', // Chestnut Brown
             '#8b4513', // Saddle Brown
