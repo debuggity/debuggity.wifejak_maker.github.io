@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wifejak Customizer</title>
+    <title>Wifejak Maker</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -34,7 +34,12 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             padding: 20px;
             margin: 10px;
-            position: relative; /* Add this line */
+            position: relative;
+            border: 2px solid transparent;
+            transition: border-color 0.3s;
+        }  
+        .control-panel:hover {
+            border-color: #007bff;
         }
         .control-panel h3 {
             margin-top: 0;
@@ -286,6 +291,63 @@
             height: 100px;
             width: 215px;
         }
+        .tab-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .tab-button {
+            background-color: #f0f0f0;
+            color: #333;
+            border: 1px solid #ccc;
+            border-bottom: none;
+            border-radius: 10px 10px 0 0;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 1em;
+            margin: 0 10px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .tab-button.active {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+            border-bottom: 2px solid white;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        #saveBtnTop {
+            background-color: transparent;
+            color: #333;
+            border: none;
+            cursor: pointer;
+            font-size: 2em;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        #saveBtnTop:hover {
+            color: #007bff;
+        }
+
+
 
 
         @keyframes rainbowBorder {
@@ -354,236 +416,253 @@
 
     <canvas id="characterCanvas" width="650" height="650"></canvas>
 
-    <div class="controls">
-        <div class="control-panel" id="character-selection">
-            <h3>Select Your Character</h3>
-            <button class="random-btn" onclick="randomizeCharacter()">🎲</button>
-            <div id="default-characters" class="icon-container">
-                <div class="character-icon-container">
-                    <img src="regular.png" alt="Default Character 1" class="character-icon" onclick="selectCharacter('regular.png')">
-                </div>
-                <div class="character-icon-container">
-                    <img src="very-happy.png" alt="Default Character 2" class="character-icon" onclick="selectCharacter('very-happy.png')">
-                </div>
-                <div class="character-icon-container">
-                    <img src="celebrating.png" alt="Default Character 3" class="character-icon" onclick="selectCharacter('celebrating.png')">
-                </div>
-                <div class="character-icon-container">
-                    <img src="crying.png" alt="Default Character 4" class="character-icon" onclick="selectCharacter('crying.png')">
-                </div>
-                <div class="character-icon-container">
-                    <img src="hands-up.png" alt="Default Character 5" class="character-icon" onclick="selectCharacter('hands-up.png')">
-                </div>
-                <div class="character-icon-container">
-                    <img src="commando.png" alt="Default Character 6" class="character-icon" onclick="selectCharacter('commando.png')">
-                </div>
-                <div class="character-icon-container">
-                    <img src="blushing.png" alt="Default Character 5" class="character-icon" onclick="selectCharacter('blushing.png')">
-                </div>
-                <div class="character-icon-container">
-                    <img src="eye-roll.png" alt="Default Character 6" class="character-icon" onclick="selectCharacter('eye-roll.png')">
-                </div>
-            </div>
-            <label for="fileInput">Select Character Image:</label>
-            <input type="file" id="fileInput" accept="image/png">
-            <div class="scale-slider">
-                <label for="scaleRange">Scale Character:</label>
-                <input type="range" id="scaleRange" min="0.5" max="1.2" step="0.05" value="1">
-            </div>
-        </div>
+    <div class="tab-container">
+        <button class="tab-button" onclick="showTab('simple')">Simple Mode</button>
+        <button class="tab-button" onclick="showTab('advanced')">Advanced Mode</button>
+    </div>
 
-        <div class="control-panel">
-            <div class="color-picker">
-                <label for="skinColor">Skin Color:</label>
-                <button class="random-btn" onclick="randomizeColor('skinColor')">🎲</button>
-                <input type="color" id="skinColor" value="#f7e8e8">
-            </div>
-            <div class="color-picker">
-                <label for="hairColor">Hair Color:</label>
-                <button class="random-btn" onclick="randomizeColor('hairColor')">🎲</button>
-                <input type="color" id="hairColor" value="#8e2a2a">
-            </div>
-            <div class="color-picker">
-                <label for="shirtColor">Shirt Color:</label>
-                <button class="random-btn" onclick="randomizeColor('shirtColor')">🎲</button>
-                <input type="color" id="shirtColor" value="#808080">
-            </div>
-            <div class="color-picker">
-                <label for="bgColor">Background:</label>
-                <button class="random-btn" onclick="randomizeColor('bgColor')">🎲</button>
-                <input type="color" id="bgColor" value="#ab84e6">
+    <div id="simple-mode" class="tab-content active">
+        <button id="saveBtn" style="position: absolute; top: 20px; right: 20px;">
+            &#x1F4BE;
+        </button>
+        <button id="gigaRandomBtn" onclick="gigaRandom()">Giga Random</button>
+        <button id="saveBtnBottom" onclick="saveCharacter()">
+            &#x1F4BE;
+        </button>
+        <!-- Add any other small important features here -->
+    </div>
+
+    <div id="advanced-mode" class="tab-content">
+        <div class="controls">
+            <div class="control-panel" id="character-selection">
+                <h3>Select Your Character</h3>
+                <button class="random-btn" onclick="randomizeCharacter()">🎲</button>
+                <div id="default-characters" class="icon-container">
+                    <div class="character-icon-container">
+                        <img src="regular.png" alt="Default Character 1" class="character-icon" onclick="selectCharacter('regular.png')">
+                    </div>
+                    <div class="character-icon-container">
+                        <img src="very-happy.png" alt="Default Character 2" class="character-icon" onclick="selectCharacter('very-happy.png')">
+                    </div>
+                    <div class="character-icon-container">
+                        <img src="celebrating.png" alt="Default Character 3" class="character-icon" onclick="selectCharacter('celebrating.png')">
+                    </div>
+                    <div class="character-icon-container">
+                        <img src="crying.png" alt="Default Character 4" class="character-icon" onclick="selectCharacter('crying.png')">
+                    </div>
+                    <div class="character-icon-container">
+                        <img src="hands-up.png" alt="Default Character 5" class="character-icon" onclick="selectCharacter('hands-up.png')">
+                    </div>
+                    <div class="character-icon-container">
+                        <img src="commando.png" alt="Default Character 6" class="character-icon" onclick="selectCharacter('commando.png')">
+                    </div>
+                    <div class="character-icon-container">
+                        <img src="blushing.png" alt="Default Character 5" class="character-icon" onclick="selectCharacter('blushing.png')">
+                    </div>
+                    <div class="character-icon-container">
+                        <img src="eye-roll.png" alt="Default Character 6" class="character-icon" onclick="selectCharacter('eye-roll.png')">
+                    </div>
+                </div>
+                <label for="fileInput">Select Character Image:</label>
+                <input type="file" id="fileInput" accept="image/png">
+                <div class="scale-slider">
+                    <label for="scaleRange">Scale Character:</label>
+                    <input type="range" id="scaleRange" min="0.5" max="1.2" step="0.05" value="1">
+                </div>
             </div>
 
-             <!-- New section for image filters -->
-            <h3>Select Image Filter</h3>
-            <div class="filters-wrapper">
-                <div id="filters" class="horizontal-scroll-container">
-                    <div class="filter-icon-container" style="width: 50px; height: 50px; overflow: hidden; display: inline-block; border-radius: 5px; border: 1px solid #ccc; margin-right: 10px;">
-                        <img src="filters/old-timey.png" alt="Old Timey Filter" class="filter-icon" onclick="applyFilter('old-timey')">
-                    </div>
-                    <div class="filter-icon-container" style="width: 50px; height: 50px; display: inline-block; border-radius: 5px; border: 1px solid #ccc; margin-right: 10px; background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);" onclick="applyFilter('vintage')">
-                    </div>
-                    <div class="filter-icon-container" style="width: 50px; height: 50px; display: inline-block; border-radius: 5px; border: 1px solid #ccc; margin-right: 10px; background: linear-gradient(135deg, #fddb92 0%, #d1fdff 100%);" onclick="applyFilter('retro')">
-                    </div>
-                    <div class="filter-icon-container" style="width: 50px; height: 50px; display: inline-block; border-radius: 5px; border: 1px solid #ccc; margin-right: 10px; background: linear-gradient(135deg, #ffffff 0%, #2b282b 100%);" onclick="applyFilter('black-and-white')">
-                    </div>
-                    <div class="filter-icon-container" style="width: 50px; height: 50px; display: inline-block; border-radius: 5px; border: 1px solid #ccc; margin-right: 10px; background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%);" onclick="applyFilter('sepia')">
-                    </div>
-                    <div class="filter-icon-container" style="width: 50px; height: 50px; display: inline-block; border-radius: 5px; border: 1px solid #ccc; margin-right: 10px; background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);" onclick="applyFilter('cool')">
-                    </div>
-                    <div class="filter-icon-container" style="width: 50px; height: 50px; display: inline-block; border-radius: 5px; border: 1px solid #ccc; margin-right: 10px; background: linear-gradient(135deg, #ffffff 0%, #0b374b 100%);" onclick="applyFilter('manga')">
-                    </div>
-                    <div class="filter-icon-container" style="width: 50px; height: 50px; display: inline-block; border-radius: 5px; border: 1px solid #ccc; margin-right: 10px; background: radial-gradient(circle, transparent 70%, black 100%);" onclick="applyFilter('vignette')">
+            <div class="control-panel">
+                <div class="color-picker">
+                    <label for="skinColor">Skin Color:</label>
+                    <button class="random-btn" onclick="randomizeColor('skinColor')">🎲</button>
+                    <input type="color" id="skinColor" value="#f7e8e8">
+                </div>
+                <div class="color-picker">
+                    <label for="hairColor">Hair Color:</label>
+                    <button class="random-btn" onclick="randomizeColor('hairColor')">🎲</button>
+                    <input type="color" id="hairColor" value="#8e2a2a">
+                </div>
+                <div class="color-picker">
+                    <label for="shirtColor">Shirt Color:</label>
+                    <button class="random-btn" onclick="randomizeColor('shirtColor')">🎲</button>
+                    <input type="color" id="shirtColor" value="#808080">
+                </div>
+                <div class="color-picker">
+                    <label for="bgColor">Background:</label>
+                    <button class="random-btn" onclick="randomizeColor('bgColor')">🎲</button>
+                    <input type="color" id="bgColor" value="#ab84e6">
+                </div>
+
+                <!-- New section for image filters -->
+                <h3>Select Image Filter</h3>
+                <div class="filters-wrapper">
+                    <div id="filters" class="horizontal-scroll-container">
+                        <div class="filter-icon-container" style="width: 50px; height: 50px; overflow: hidden; display: inline-block; border-radius: 5px; border: 1px solid #ccc; margin-right: 10px;">
+                            <img src="filters/old-timey.png" alt="Old Timey Filter" class="filter-icon" onclick="applyFilter('old-timey')">
+                        </div>
+                        <div class="filter-icon-container" style="width: 50px; height: 50px; display: inline-block; border-radius: 5px; border: 1px solid #ccc; margin-right: 10px; background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);" onclick="applyFilter('vintage')">
+                        </div>
+                        <div class="filter-icon-container" style="width: 50px; height: 50px; display: inline-block; border-radius: 5px; border: 1px solid #ccc; margin-right: 10px; background: linear-gradient(135deg, #fddb92 0%, #d1fdff 100%);" onclick="applyFilter('retro')">
+                        </div>
+                        <div class="filter-icon-container" style="width: 50px; height: 50px; display: inline-block; border-radius: 5px; border: 1px solid #ccc; margin-right: 10px; background: linear-gradient(135deg, #ffffff 0%, #2b282b 100%);" onclick="applyFilter('black-and-white')">
+                        </div>
+                        <div class="filter-icon-container" style="width: 50px; height: 50px; display: inline-block; border-radius: 5px; border: 1px solid #ccc; margin-right: 10px; background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%);" onclick="applyFilter('sepia')">
+                        </div>
+                        <div class="filter-icon-container" style="width: 50px; height: 50px; display: inline-block; border-radius: 5px; border: 1px solid #ccc; margin-right: 10px; background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);" onclick="applyFilter('cool')">
+                        </div>
+                        <div class="filter-icon-container" style="width: 50px; height: 50px; display: inline-block; border-radius: 5px; border: 1px solid #ccc; margin-right: 10px; background: linear-gradient(135deg, #ffffff 0%, #0b374b 100%);" onclick="applyFilter('manga')">
+                        </div>
+                        <div class="filter-icon-container" style="width: 50px; height: 50px; display: inline-block; border-radius: 5px; border: 1px solid #ccc; margin-right: 10px; background: radial-gradient(circle, transparent 70%, black 100%);" onclick="applyFilter('vignette')">
+                        </div>
+                        
+                        <!-- Add more filter icons here -->
                     </div>
                     
-                    <!-- Add more filter icons here -->
                 </div>
-                
-            </div>
 
-            <button id="resetBtn">Reset to Default</button>
-        </div>
-        <div class="control-panel" id="accessories-selection">
-            <h3>Select Accessories</h3>
-            <button class="random-btn" onclick="randomizeAccessory()">🎲</button>
-            <div class="accessories-wrapper">
-                <div id="accessories" class="horizontal-scroll-container">
-                    <div class="accessory-icon-container">
-                        <img src="accessories/sunglasses_1.png" alt="Accessory 1" class="accessory-icon" 
-                             data-percent-x="42.5" data-percent-y="36" data-scale="0.32" data-angle="0" 
-                             onclick="selectAccessory(this)">
-                    </div>
-                    <div class="accessory-icon-container">
-                        <img src="accessories/sunglasses_2.png" alt="Accessory 2" class="accessory-icon" 
-                             data-percent-x="41.5" data-percent-y="35" data-scale="0.32" data-angle="0" 
-                             onclick="selectAccessory(this)">
-                    </div>
-                    <div class="accessory-icon-container">
-                        <img src="accessories/sunglasses_3.png" alt="Accessory 1" class="accessory-icon" 
-                             data-percent-x="41.5" data-percent-y="35" data-scale="0.32" data-angle="0" 
-                             onclick="selectAccessory(this)">
-                    </div>
-                    <div class="accessory-icon-container">
-                        <img src="accessories/sunglasses_4.png" alt="Accessory 2" class="accessory-icon" 
-                             data-percent-x="41.5" data-percent-y="35" data-scale="0.32" data-angle="0" 
-                             onclick="selectAccessory(this)">
-                    </div>
-                    <div class="accessory-icon-container">
-                        <img src="accessories/hat_1.png" alt="Accessory 1" class="accessory-icon" 
-                             data-percent-x="30" data-percent-y="4.5" data-scale="0.3" data-angle="-17" 
-                             onclick="selectAccessory(this)">
-                    </div>
-                    <div class="accessory-icon-container">
-                        <img src="accessories/hat_2.png" alt="Accessory 2" class="accessory-icon" 
-                             data-percent-x="30" data-percent-y="4.5" data-scale="0.3" data-angle="-17" 
-                             onclick="selectAccessory(this)">
-                    </div>
-                    <div class="accessory-icon-container">
-                        <img src="accessories/hat_3.png" alt="Accessory 1" class="accessory-icon" 
-                             data-percent-x="30" data-percent-y="5" data-scale="0.3" data-angle="-17" 
-                             onclick="selectAccessory(this)">
-                    </div>
-                    <div class="accessory-icon-container">
-                        <img src="accessories/hat_4.png" alt="Accessory 2" class="accessory-icon" 
-                             data-percent-x="30" data-percent-y="4.5" data-scale="0.3" data-angle="-17" 
-                             onclick="selectAccessory(this)">
-                    </div>
-                    <div class="accessory-icon-container">
-                        <img src="accessories/hat_5.png" alt="Accessory 1" class="accessory-icon" 
-                             data-percent-x="30" data-percent-y="6" data-scale="0.3" data-angle="-17" 
-                             onclick="selectAccessory(this)">
-                    </div>
-                    <div class="accessory-icon-container">
-                        <img src="accessories/hat_6.png" alt="Accessory 2" class="accessory-icon" 
-                             data-percent-x="30" data-percent-y="4.5" data-scale="0.3" data-angle="-17" 
-                             onclick="selectAccessory(this)">
-                    </div>
-                    <div class="accessory-icon-container">
-                        <img src="accessories/hat_7.png" alt="Accessory 1" class="accessory-icon" 
-                             data-percent-x="30" data-percent-y="4.5" data-scale="0.3" data-angle="-17" 
-                             onclick="selectAccessory(this)">
-                    </div>
-                    <div class="accessory-icon-container">
-                        <img src="accessories/hat_8.png" alt="Accessory 2" class="accessory-icon" 
-                             data-percent-x="30" data-percent-y="4.5" data-scale="0.3" data-angle="-17" 
-                             onclick="selectAccessory(this)">
-                    </div>
-                    <div class="accessory-icon-container">
-                        <img src="accessories/hat_floki.png" alt="Accessory 2" class="accessory-icon" 
-                             data-percent-x="24" data-percent-y="-2.5" data-scale="0.62" data-angle="-5" 
-                             onclick="selectAccessory(this)">
-                    </div>
-                    <div class="accessory-icon-container">
-                        <img src="accessories/hat_wif.png" alt="Accessory 2" class="accessory-icon" 
-                             data-percent-x="25" data-percent-y="10.5" data-scale="0.45" data-angle="-13" 
-                             onclick="selectAccessory(this)">
-                    </div>
-                    <div class="accessory-icon-container">
-                        <img src="accessories/beachball.png" alt="Accessory 2" class="accessory-icon" 
-                             data-percent-x="60" data-percent-y="74" data-scale="0.3" data-angle="-17" 
-                             onclick="selectAccessory(this)">
-                    </div>
-                    <div class="accessory-icon-container">
-                        <img src="accessories/flipflops.png" alt="Accessory 2" class="accessory-icon" 
-                             data-percent-x="60" data-percent-y="74" data-scale="0.3" data-angle="-17" 
-                             onclick="selectAccessory(this)">
-                    </div>
-                    <div class="accessory-icon-container">
-                        <img src="accessories/starfish.png" alt="Accessory 2" class="accessory-icon" 
-                             data-percent-x="30" data-percent-y="27" data-scale="0.18" data-angle="-17" 
-                             onclick="selectAccessory(this)">
-                    </div>
-                    <div class="accessory-icon-container">
-                        <img src="accessories/surfboard.png" alt="Accessory 2" class="accessory-icon" 
-                             data-percent-x="10" data-percent-y="30" data-scale="0.8" data-angle="-17" 
-                             onclick="selectAccessory(this)">
-                    </div>
-                    <div class="accessory-icon-container">
-                        <img src="accessories/surfboard2.png" alt="Accessory 2" class="accessory-icon" 
-                             data-percent-x="10" data-percent-y="30" data-scale="0.8" data-angle="-17" 
-                             onclick="selectAccessory(this)">
-                    </div>    
-                    <div class="accessory-icon-container">
-                        <img src="accessories/mcdonalds_cap.png" alt="Accessory 2" class="accessory-icon" 
-                             data-percent-x="30.5" data-percent-y="15" data-scale="0.45" data-angle="0" 
-                             onclick="selectAccessory(this)">
-                    </div>    
-                    <div class="accessory-icon-container">
-                        <img src="accessories/BONK.png" alt="Accessory 2" class="accessory-icon" 
-                             data-percent-x="54" data-percent-y="62" data-scale="0.5" data-angle="0" 
-                             onclick="selectAccessory(this)">
-                    </div>   
-                    <div class="accessory-icon-container">
-                        <img src="accessories/DOGE.png" alt="Accessory 2" class="accessory-icon" 
-                             data-percent-x="52" data-percent-y="66" data-scale="0.4" data-angle="0" 
-                             onclick="selectAccessory(this)">
-                    </div>   
-                    <div class="accessory-icon-container">
-                        <img src="accessories/SHIB.png" alt="Accessory 2" class="accessory-icon" 
-                             data-percent-x="52" data-percent-y="68" data-scale="0.35" data-angle="0" 
-                             onclick="selectAccessory(this)">
-                    </div>   
-                    <div class="accessory-icon-container">
-                        <img src="accessories/WIF.png" alt="Accessory 2" class="accessory-icon" 
-                             data-percent-x="52" data-percent-y="68" data-scale="0.35" data-angle="0" 
-                             onclick="selectAccessory(this)">
-                    </div>   
-                    <div class="accessory-icon-container">
-                        <img src="accessories/PEPE.png" alt="Accessory 2" class="accessory-icon" 
-                             data-percent-x="26.3" data-percent-y="8" data-scale="0.4" data-angle="0" 
-                             onclick="selectAccessory(this)">
-                    </div>   
-                    <div class="accessory-icon-container">
-                        <img src="accessories/FLOKI.png" alt="Accessory 2" class="accessory-icon" 
-                             data-percent-x="52" data-percent-y="63" data-scale="0.4" data-angle="0" 
-                             onclick="selectAccessory(this)">
-                    </div>                    
-                </div>
+                <button id="resetBtn">Reset to Default</button>
             </div>
-            <button id="removeAccessoriesBtn" onclick="removeAllAccessories()">Remove All Accessories</button>
-        </div>        
-              
-        <div class="control-panel" id="background-selection">
+            <div class="control-panel" id="accessories-selection">
+                <h3>Select Accessories</h3>
+                <button class="random-btn" onclick="randomizeAccessory()">🎲</button>
+                <div class="accessories-wrapper">
+                    <div id="accessories" class="horizontal-scroll-container">
+                        <div class="accessory-icon-container">
+                            <img src="accessories/sunglasses_1.png" alt="Accessory 1" class="accessory-icon" 
+                                data-percent-x="42.5" data-percent-y="36" data-scale="0.32" data-angle="0" 
+                                onclick="selectAccessory(this)">
+                        </div>
+                        <div class="accessory-icon-container">
+                            <img src="accessories/sunglasses_2.png" alt="Accessory 2" class="accessory-icon" 
+                                data-percent-x="41.5" data-percent-y="35" data-scale="0.32" data-angle="0" 
+                                onclick="selectAccessory(this)">
+                        </div>
+                        <div class="accessory-icon-container">
+                            <img src="accessories/sunglasses_3.png" alt="Accessory 1" class="accessory-icon" 
+                                data-percent-x="41.5" data-percent-y="35" data-scale="0.32" data-angle="0" 
+                                onclick="selectAccessory(this)">
+                        </div>
+                        <div class="accessory-icon-container">
+                            <img src="accessories/sunglasses_4.png" alt="Accessory 2" class="accessory-icon" 
+                                data-percent-x="41.5" data-percent-y="35" data-scale="0.32" data-angle="0" 
+                                onclick="selectAccessory(this)">
+                        </div>
+                        <div class="accessory-icon-container">
+                            <img src="accessories/hat_1.png" alt="Accessory 1" class="accessory-icon" 
+                                data-percent-x="30" data-percent-y="4.5" data-scale="0.3" data-angle="-17" 
+                                onclick="selectAccessory(this)">
+                        </div>
+                        <div class="accessory-icon-container">
+                            <img src="accessories/hat_2.png" alt="Accessory 2" class="accessory-icon" 
+                                data-percent-x="30" data-percent-y="4.5" data-scale="0.3" data-angle="-17" 
+                                onclick="selectAccessory(this)">
+                        </div>
+                        <div class="accessory-icon-container">
+                            <img src="accessories/hat_3.png" alt="Accessory 1" class="accessory-icon" 
+                                data-percent-x="30" data-percent-y="5" data-scale="0.3" data-angle="-17" 
+                                onclick="selectAccessory(this)">
+                        </div>
+                        <div class="accessory-icon-container">
+                            <img src="accessories/hat_4.png" alt="Accessory 2" class="accessory-icon" 
+                                data-percent-x="30" data-percent-y="4.5" data-scale="0.3" data-angle="-17" 
+                                onclick="selectAccessory(this)">
+                        </div>
+                        <div class="accessory-icon-container">
+                            <img src="accessories/hat_5.png" alt="Accessory 1" class="accessory-icon" 
+                                data-percent-x="30" data-percent-y="6" data-scale="0.3" data-angle="-17" 
+                                onclick="selectAccessory(this)">
+                        </div>
+                        <div class="accessory-icon-container">
+                            <img src="accessories/hat_6.png" alt="Accessory 2" class="accessory-icon" 
+                                data-percent-x="30" data-percent-y="4.5" data-scale="0.3" data-angle="-17" 
+                                onclick="selectAccessory(this)">
+                        </div>
+                        <div class="accessory-icon-container">
+                            <img src="accessories/hat_7.png" alt="Accessory 1" class="accessory-icon" 
+                                data-percent-x="30" data-percent-y="4.5" data-scale="0.3" data-angle="-17" 
+                                onclick="selectAccessory(this)">
+                        </div>
+                        <div class="accessory-icon-container">
+                            <img src="accessories/hat_8.png" alt="Accessory 2" class="accessory-icon" 
+                                data-percent-x="30" data-percent-y="4.5" data-scale="0.3" data-angle="-17" 
+                                onclick="selectAccessory(this)">
+                        </div>
+                        <div class="accessory-icon-container">
+                            <img src="accessories/hat_floki.png" alt="Accessory 2" class="accessory-icon" 
+                                data-percent-x="24" data-percent-y="-2.5" data-scale="0.62" data-angle="-5" 
+                                onclick="selectAccessory(this)">
+                        </div>
+                        <div class="accessory-icon-container">
+                            <img src="accessories/hat_wif.png" alt="Accessory 2" class="accessory-icon" 
+                                data-percent-x="25" data-percent-y="10.5" data-scale="0.45" data-angle="-13" 
+                                onclick="selectAccessory(this)">
+                        </div>
+                        <div class="accessory-icon-container">
+                            <img src="accessories/beachball.png" alt="Accessory 2" class="accessory-icon" 
+                                data-percent-x="60" data-percent-y="74" data-scale="0.3" data-angle="-17" 
+                                onclick="selectAccessory(this)">
+                        </div>
+                        <div class="accessory-icon-container">
+                            <img src="accessories/flipflops.png" alt="Accessory 2" class="accessory-icon" 
+                                data-percent-x="60" data-percent-y="74" data-scale="0.3" data-angle="-17" 
+                                onclick="selectAccessory(this)">
+                        </div>
+                        <div class="accessory-icon-container">
+                            <img src="accessories/starfish.png" alt="Accessory 2" class="accessory-icon" 
+                                data-percent-x="30" data-percent-y="27" data-scale="0.18" data-angle="-17" 
+                                onclick="selectAccessory(this)">
+                        </div>
+                        <div class="accessory-icon-container">
+                            <img src="accessories/surfboard.png" alt="Accessory 2" class="accessory-icon" 
+                                data-percent-x="10" data-percent-y="30" data-scale="0.8" data-angle="-17" 
+                                onclick="selectAccessory(this)">
+                        </div>
+                        <div class="accessory-icon-container">
+                            <img src="accessories/surfboard2.png" alt="Accessory 2" class="accessory-icon" 
+                                data-percent-x="10" data-percent-y="30" data-scale="0.8" data-angle="-17" 
+                                onclick="selectAccessory(this)">
+                        </div>    
+                        <div class="accessory-icon-container">
+                            <img src="accessories/mcdonalds_cap.png" alt="Accessory 2" class="accessory-icon" 
+                                data-percent-x="30.5" data-percent-y="15" data-scale="0.45" data-angle="0" 
+                                onclick="selectAccessory(this)">
+                        </div>    
+                        <div class="accessory-icon-container">
+                            <img src="accessories/BONK.png" alt="Accessory 2" class="accessory-icon" 
+                                data-percent-x="54" data-percent-y="62" data-scale="0.5" data-angle="0" 
+                                onclick="selectAccessory(this)">
+                        </div>   
+                        <div class="accessory-icon-container">
+                            <img src="accessories/DOGE.png" alt="Accessory 2" class="accessory-icon" 
+                                data-percent-x="52" data-percent-y="66" data-scale="0.4" data-angle="0" 
+                                onclick="selectAccessory(this)">
+                        </div>   
+                        <div class="accessory-icon-container">
+                            <img src="accessories/SHIB.png" alt="Accessory 2" class="accessory-icon" 
+                                data-percent-x="52" data-percent-y="68" data-scale="0.35" data-angle="0" 
+                                onclick="selectAccessory(this)">
+                        </div>   
+                        <div class="accessory-icon-container">
+                            <img src="accessories/WIF.png" alt="Accessory 2" class="accessory-icon" 
+                                data-percent-x="52" data-percent-y="68" data-scale="0.35" data-angle="0" 
+                                onclick="selectAccessory(this)">
+                        </div>   
+                        <div class="accessory-icon-container">
+                            <img src="accessories/PEPE.png" alt="Accessory 2" class="accessory-icon" 
+                                data-percent-x="26.3" data-percent-y="8" data-scale="0.4" data-angle="0" 
+                                onclick="selectAccessory(this)">
+                        </div>   
+                        <div class="accessory-icon-container">
+                            <img src="accessories/FLOKI.png" alt="Accessory 2" class="accessory-icon" 
+                                data-percent-x="52" data-percent-y="63" data-scale="0.4" data-angle="0" 
+                                onclick="selectAccessory(this)">
+                        </div>                    
+                    </div>
+                </div>
+                <button id="removeAccessoriesBtn" onclick="removeAllAccessories()">Remove All Accessories</button>
+            </div>        
+                
+            <div class="control-panel" id="background-selection">
                 <h3>Select Your Background</h3>
                 <button class="random-btn" onclick="randomizeBackground()">🎲</button>
                 <div id="preset-backgrounds" class="icon-container">
@@ -611,9 +690,9 @@
                     &#x1F4BE;
                 </button>
                 <button id="gigaRandomBtn" onclick="gigaRandom()">Giga Random</button> <!-- Add this line -->
-
             </div>
         </div>
+    </div>
         
     <script>
         const fileInput = document.getElementById('fileInput');
@@ -625,6 +704,28 @@
         const saveBtn = document.getElementById('saveBtn');
         const canvas = document.getElementById('characterCanvas');
         const ctx = canvas.getContext('2d');
+
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // Remove active class from all tab buttons
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active');
+            });
+
+            // Show the selected tab content
+            document.getElementById(`${tabName}-mode`).classList.add('active');
+
+            // Add active class to the selected tab button
+            document.querySelector(`.tab-button[onclick="showTab('${tabName}')"]`).classList.add('active');
+        }
+
+        // Show the simple mode by default
+        showTab('simple');
+
 
         async function gigaRandom() {
             removeAllAccessories();
@@ -642,8 +743,6 @@
             }
         }
 
-
-
         const resetBtn = document.getElementById('resetBtn');
 
         resetBtn.addEventListener('click', () => {
@@ -659,7 +758,6 @@
 
             drawCanvas();
         });
-
 
         function randomizeCharacter() {
             const characterImages = ['regular.png', 'very-happy.png', 'celebrating.png', 'crying.png', 'hands-up.png', 'commando.png', 'blushing.png', 'eye-roll.png'];
@@ -709,7 +807,6 @@
             
             return { x, y, width, height };
         }
-
 
         function randomizeAccessory() {
             return new Promise((resolve) => {
@@ -779,9 +876,6 @@
                 callback(finalChoice);
             }, randomDuration);
         }
-
-
-
 
         function previewAccessory(element, isFinal) {
             const accessoryImage = new Image();
@@ -983,8 +1077,6 @@
             drawCanvas();
         }
 
-
-
         let characterImage = new Image();
         let bgImage = new Image();
         let originalPixels, imageData;
@@ -1095,7 +1187,6 @@
             }
         }
 
-
         function applyRetroFilter(data) {
             const width = canvas.width;
             const height = canvas.height;
@@ -1202,8 +1293,6 @@
             }
 
         }
-
-
 
         function applyVignetteFilter(data) {
             const width = canvas.width;
@@ -1331,9 +1420,6 @@
             }
         }
 
-
-
-
         const scaleRange = document.getElementById('scaleRange');
 
         let characterScale = parseFloat(scaleRange.value);
@@ -1396,7 +1482,6 @@
             }
         };
 
-
         const hexToRgb = (hex) => {
             const bigint = parseInt(hex.slice(1), 16);
             return {
@@ -1442,7 +1527,6 @@
             return { width, height };
         };
 
-
         const getImageDimensions = (image, canvasWidth, canvasHeight) => {
             const imageAspectRatio = image.width / image.height;
             const canvasAspectRatio = canvasWidth / canvasHeight;
@@ -1471,7 +1555,6 @@
             link.href = canvas.toDataURL('image/png');
             link.click();
         };
-
 
         // Function to select a preset background
         function selectBackground(backgroundPath) {
