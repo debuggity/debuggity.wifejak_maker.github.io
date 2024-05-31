@@ -973,9 +973,13 @@
                     finalColor = getRandomSkinTone();
                 } else if (colorInputId === 'hairColor' && Math.random() < 0.8) {
                     finalColor = getRandomHairColor();
+                } else if (colorInputId === 'bgColor') {
+                    finalColor = getRandomColor();
+                    bgColor = finalColor
                 } else {
                     finalColor = getRandomColor();
                 }
+                
                 colorInput.value = finalColor;
                 drawCanvas();
             }, steps * stepDuration);
@@ -1465,7 +1469,7 @@
             console.log("bgColor:", bgColor);
 
             // Draw the background first
-            if (useBgImage && bgImage.src) {
+            if (useBgImage) {
                 const { width, height, offsetX, offsetY } = getImageDimensions(bgImage, canvas.width, canvas.height);
                 ctx.drawImage(bgImage, -offsetX, -offsetY, width, height);
             } else {
