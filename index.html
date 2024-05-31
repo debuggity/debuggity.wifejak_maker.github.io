@@ -784,6 +784,7 @@
             hairColorInput.value = '#8e2a2a';
             shirtColorInput.value = '#808080';
             bgColorInput.value = '#ab84e6';
+            bgColor = bgColorInput.value
 
             // Reset the current filter to null
             currentFilter = null;
@@ -957,6 +958,7 @@
                 } else if (colorInputId === 'bgColor') {
                     useBgImage = false;
                     randomColor = getRandomColor();
+                    bgColor = randomColor;
                 } else {
                     randomColor = getRandomColor();
                 }
