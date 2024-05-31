@@ -295,7 +295,7 @@
             animation: gradientShift 2s linear infinite;
         }
 
-        #gigaRandomBtn:active {
+        .dice-roll {
             animation: diceRoll 0.6s ease-in-out;
         }
 
@@ -340,6 +340,8 @@
                 transform: rotate(360deg) scale(1);
             }
         }
+
+
 
 
         #filters {
@@ -778,6 +780,15 @@
         const saveBtn = document.getElementById('saveBtn');
         const canvas = document.getElementById('characterCanvas');
         const ctx = canvas.getContext('2d');
+
+        document.getElementById('gigaRandomBtn').addEventListener('click', function() {
+            this.classList.add('dice-roll');
+            setTimeout(() => {
+                this.classList.remove('dice-roll');
+            }, 600); // Duration of the diceRoll animation in milliseconds
+        });
+
+
 
         function showTab(tabName) {
             // Hide all tab contents
