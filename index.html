@@ -735,7 +735,10 @@
             if (Math.random() < 0.20) {
                 bgImage.src = '';
                 // Directly update the background color input and canvas
-                bgColorInput.value = getRandomColor();
+                const randomBgColor = getRandomColor();
+                bgColorInput.value = randomBgColor;
+                console.log("Random Background Color:", randomBgColor);
+                canvas.style.backgroundColor = randomBgColor; // Set the canvas background color using CSS
                 drawCanvas(); // Redraw the canvas to apply the change immediately
             } else {
                 randomizeBackground();
@@ -1435,6 +1438,10 @@
 
         function drawCanvas() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Log the current background image source and color
+            console.log("bgImage.src:", bgImage.src);
+            console.log("bgColorInput.value:", bgColorInput.value);
 
             // Draw the background first
             if (bgImage.src && bgImage.src !== '') {
