@@ -734,12 +734,7 @@
             // 20% chance to remove the background image
             if (Math.random() < 0.20) {
                 bgImage.src = '';
-                // Directly update the background color input and canvas
-                const randomBgColor = getRandomColor();
-                bgColorInput.value = randomBgColor;
-                console.log("Random Background Color:", randomBgColor);
-                canvas.style.backgroundColor = randomBgColor; // Set the canvas background color using CSS
-                drawCanvas(); // Redraw the canvas to apply the change immediately
+                rouletteBackgroundColorChange();
             } else {
                 randomizeBackground();
                 randomizeColor('bgColor');
@@ -756,6 +751,26 @@
             }
 
             drawCanvas(); // Ensure the canvas is updated
+        }
+
+        function rouletteBackgroundColorChange() {
+            let steps = 15; // Number of steps for the roulette animation
+            let stepDuration = 150; // Duration of each step in milliseconds
+
+            let interval = setInterval(() => {
+                let randomColor = getRandomColor();
+                canvas.style.backgroundColor = randomColor;
+                bgColorInput.value = randomColor;
+            }, stepDuration);
+
+            setTimeout(() => {
+                clearInterval(interval);
+                // Final random color
+                let finalColor = getRandomColor();
+                canvas.style.backgroundColor = finalColor;
+                bgColorInput.value = finalColor;
+                drawCanvas(); // Redraw the canvas to apply the final color change
+            }, steps * stepDuration);
         }
 
         const resetBtn = document.getElementById('resetBtn');
@@ -936,7 +951,6 @@
                     // 85% chance to choose a beautiful hair color
                     randomColor = getRandomHairColor();
                 } else {
-                    // 15% chance to choose a random color
                     randomColor = getRandomColor();
                 }
                 colorInput.value = randomColor;
