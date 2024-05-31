@@ -1659,12 +1659,17 @@
 
         // Function to select a preset background
         function selectBackground(backgroundPath) {
-            // Set the selected background image to the chosen preset background
+            useBgImage = true; // Ensure the background image is used
             bgImage.src = backgroundPath;
             bgImage.onload = drawCanvas;
         }
 
-        bgColorInput.addEventListener('input', drawCanvas);
+        bgColorInput.addEventListener('input', (event) => {
+            useBgImage = false; // Ensure the background color is used
+            bgColor = event.target.value;
+            drawCanvas();
+        });
+
         skinColorInput.addEventListener('input', drawCanvas);
         hairColorInput.addEventListener('input', drawCanvas);
         shirtColorInput.addEventListener('input', drawCanvas);
