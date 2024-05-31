@@ -253,6 +253,17 @@
             background-color: #0056b3;
         }
 
+        @keyframes gigaRandomHearts {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) scale(1.5);
+                opacity: 0;
+            }
+        }
+
         #gigaRandomBtn {
             background-color: #007bff;
             color: white;
@@ -290,6 +301,32 @@
         #gigaRandomBtn:active {
             animation: rainbowBorder 2s linear infinite;
         }
+
+        @keyframes rainbowBorder {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .heart {
+            position: absolute;
+            bottom: 10px; /* Start from the bottom */
+            width: 20px;
+            height: 20px;
+            background-image: url('heart.png'); /* Ensure you have a heart.png image */
+            background-size: contain;
+            opacity: 1;
+            animation: gigaRandomHearts 1s forwards;
+            pointer-events: none;
+            z-index: 2;
+        }
+
 
         #filters {
             display: flex; /* Ensure this is set to flex for inline layout */
@@ -448,7 +485,9 @@
         <button id="saveBtn" style="position: absolute; top: 20px; right: 20px;">
             &#x1F4BE;
         </button>
-        <button id="gigaRandomBtn" onclick="gigaRandom()">Giga Random</button>
+        <button id="gigaRandomBtn" onclick="gigaRandom()">Giga Random
+            <div id="heartContainer"></div>
+        </button>
         <button id="saveBtnBottom" onclick="saveCharacter()">
             &#x1F4BE;
         </button>
@@ -777,8 +816,34 @@
                 await randomizeAccessory();
             }
 
+            generateHearts(); // Generate animated hearts
             drawCanvas(); // Ensure the canvas is updated
         }
+
+        // Function to generate animated hearts
+        function generateHearts() {
+            const heartContainer = document.getElementById('heartContainer');
+
+            // Clear any existing hearts
+            while (heartContainer.firstChild) {
+                heartContainer.removeChild(heartContainer.firstChild);
+            }
+
+            // Generate new hearts
+            for (let i = 0; i < 10; i++) {
+                const heart = document.createElement('div');
+                heart.classList.add('heart');
+                heart.style.left = `${Math.random() * 100}%`;
+                heart.style.animationDelay = `${Math.random() * 0.5}s`;
+                heartContainer.appendChild(heart);
+
+                // Remove heart after animation completes
+                heart.addEventListener('animationend', () => {
+                    heartContainer.removeChild(heart);
+                });
+            }
+        }
+
 
         function rouletteBackgroundColorChange() {
             let steps = 15; // Number of steps for the roulette animation
