@@ -255,14 +255,15 @@
 
         @keyframes gigaRandomHearts {
             0% {
-                transform: translateY(0) scale(1);
+                transform: translateY(0) scale(1.5); /* Increased initial scale */
                 opacity: 1;
             }
             100% {
-                transform: translateY(-200px) scale(1.5);
+                transform: translateY(-200px) scale(2); /* Increased final scale */
                 opacity: 0;
             }
         }
+
 
         #gigaRandomBtn {
             background-color: #007bff;
@@ -326,8 +327,8 @@
 
         .heart {
             position: absolute;
-            width: 20px;
-            height: 20px;
+            width: 40px; /* Increased width */
+            height: 40px; /* Increased height */
             background-image: url('heart.png'); /* Ensure you have a heart.png image */
             background-size: contain;
             opacity: 1;
@@ -486,6 +487,7 @@
     </button>
 
     <canvas id="characterCanvas" width="650" height="650"></canvas>
+    <div id="heartContainer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999;"></div>
 
     <div class="tab-container">
         <button class="tab-button" onclick="showTab('simple')">Simple Mode</button>
@@ -834,7 +836,7 @@
         // Function to generate animated hearts
         function generateHearts() {
             const heartContainer = document.getElementById('heartContainer');
-            const buttonRect = document.getElementById('gigaRandomBtn').getBoundingClientRect();
+            const canvasRect = canvas.getBoundingClientRect();
 
             // Clear any existing hearts
             while (heartContainer.firstChild) {
@@ -845,8 +847,8 @@
             for (let i = 0; i < 10; i++) {
                 const heart = document.createElement('div');
                 heart.classList.add('heart');
-                heart.style.left = `${buttonRect.left + buttonRect.width / 2 + (Math.random() - 0.5) * buttonRect.width}px`;
-                heart.style.top = `${buttonRect.top}px`;
+                heart.style.left = `${canvasRect.left + Math.random() * canvas.width}px`; // Use canvas position and width for positioning
+                heart.style.top = `${canvasRect.top + canvas.height}px`; // Start from the bottom of the canvas
                 heart.style.animationDelay = `${Math.random() * 0.5}s`;
                 heartContainer.appendChild(heart);
 
@@ -856,8 +858,6 @@
                 });
             }
         }
-
-
 
         function rouletteBackgroundColorChange() {
             let steps = 15; // Number of steps for the roulette animation
