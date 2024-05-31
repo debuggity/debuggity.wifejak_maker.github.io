@@ -727,17 +727,21 @@
         showTab('simple');
 
 
+        let useBgImage = true; // Flag to track if a background image is used
+        let bgColor = ''; // Variable to store the background color
+
         async function gigaRandom() {
             removeAllAccessories();
             randomizeCharacter();
 
             // 20% chance to remove the background image
             if (Math.random() < 0.20) {
-                bgImage.src = '';
+                useBgImage = false;
                 rouletteBackgroundColorChange();
             } else {
+                useBgImage = true;
                 randomizeBackground();
-                randomizeColor('bgColor');
+                //randomizeColor('bgColor');
             }
 
             randomizeColor('skinColor');
@@ -759,16 +763,15 @@
 
             let interval = setInterval(() => {
                 let randomColor = getRandomColor();
-                canvas.style.backgroundColor = randomColor;
-                bgColorInput.value = randomColor;
+                bgColor = randomColor; // Update the bgColor variable
+                drawCanvas(); // Redraw the canvas with the new color
             }, stepDuration);
 
             setTimeout(() => {
                 clearInterval(interval);
                 // Final random color
                 let finalColor = getRandomColor();
-                canvas.style.backgroundColor = finalColor;
-                bgColorInput.value = finalColor;
+                bgColor = finalColor; // Update the bgColor variable
                 drawCanvas(); // Redraw the canvas to apply the final color change
             }, steps * stepDuration);
         }
@@ -809,6 +812,7 @@
         }
 
         function randomizeBackground() {
+            useBgImage = true; // Set the flag to true since a background image is used
             const backgroundImages = ['bg1.png', 'bg2.png', 'bg3.png', 'bg4.png', 'bg5.png'];
             rouletteAnimation(backgroundImages, selectBackground);
         }
@@ -950,6 +954,9 @@
                 } else if (colorInputId === 'hairColor' && Math.random() < 0.85) {
                     // 85% chance to choose a beautiful hair color
                     randomColor = getRandomHairColor();
+                } else if (colorInputId === 'bgColor') {
+                    useBgImage = false;
+                    randomColor = getRandomColor();
                 } else {
                     randomColor = getRandomColor();
                 }
@@ -1454,15 +1461,15 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             // Log the current background image source and color
-            console.log("bgImage.src:", bgImage.src);
-            console.log("bgColorInput.value:", bgColorInput.value);
+            console.log("useBgImage:", useBgImage);
+            console.log("bgColor:", bgColor);
 
             // Draw the background first
-            if (bgImage.src && bgImage.src !== '') {
+            if (useBgImage && bgImage.src) {
                 const { width, height, offsetX, offsetY } = getImageDimensions(bgImage, canvas.width, canvas.height);
                 ctx.drawImage(bgImage, -offsetX, -offsetY, width, height);
             } else {
-                ctx.fillStyle = bgColorInput.value;
+                ctx.fillStyle = bgColor;
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
             }
 
