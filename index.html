@@ -734,12 +734,9 @@
             // 20% chance to remove the background image
             if (Math.random() < 0.20) {
                 bgImage.src = '';
-                // Directly update the background color input and canvas
-                bgColorInput.value = getRandomColor();
-                drawCanvas(); // Redraw the canvas to apply the change immediately
+                randomizeColor('bgColor'); // Ensure bgColor is still randomized
             } else {
                 randomizeBackground();
-                randomizeColor('bgColor');
             }
 
             randomizeColor('skinColor');
@@ -754,6 +751,7 @@
 
             drawCanvas(); // Ensure the canvas is updated
         }
+
 
 
 
@@ -1439,7 +1437,7 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             // Draw the background first
-            if (bgImage.src) {
+            if (bgImage.src && bgImage.src !== '') {
                 const { width, height, offsetX, offsetY } = getImageDimensions(bgImage, canvas.width, canvas.height);
                 ctx.drawImage(bgImage, -offsetX, -offsetY, width, height);
             } else {
