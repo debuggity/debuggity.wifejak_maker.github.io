@@ -730,11 +730,11 @@
         async function gigaRandom() {
             removeAllAccessories();
             randomizeCharacter();
-            
-            // 20% chance to remove the background
+
+            // 20% chance to remove the background image
             if (Math.random() < 0.20) {
                 bgImage.src = '';
-                drawCanvas(); // Redraw the canvas to apply the change immediately
+                randomizeColor('bgColor'); // Ensure bgColor is still randomized
             } else {
                 randomizeBackground();
             }
@@ -742,14 +742,16 @@
             randomizeColor('skinColor');
             randomizeColor('hairColor');
             randomizeColor('shirtColor');
-            randomizeColor('bgColor');
-            
+
             // Generate a random number between 0 and 3 for the number of accessories to add
             const numAccessories = Math.floor(Math.random() * 4);
             for (let i = 0; i < numAccessories; i++) {
                 await randomizeAccessory();
             }
+
+            drawCanvas(); // Ensure the canvas is updated
         }
+
 
         const resetBtn = document.getElementById('resetBtn');
 
