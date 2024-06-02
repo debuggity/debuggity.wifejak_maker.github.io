@@ -572,6 +572,10 @@
                 <h3>Select Image Filter</h3>
                 <div class="filters-wrapper">
                     <div id="filters" class="horizontal-scroll-container">
+                        <div class="filter-icon-container" style="width: 50px; height: 50px; overflow: hidden; display: inline-block; border-radius: 5px; border: 1px solid #ccc; margin-right: 10px; text-align: center; line-height: 50px; font-size: 24px; cursor: pointer;">
+                            <span onclick="removeFilter()">❌</span>
+                        </div>
+                                              
                         <div class="filter-icon-container" style="width: 50px; height: 50px; overflow: hidden; display: inline-block; border-radius: 5px; border: 1px solid #ccc; margin-right: 10px;">
                             <img src="filters/old-timey.png" alt="Old Timey Filter" class="filter-icon" onclick="applyFilter('old-timey')">
                         </div>
@@ -588,8 +592,7 @@
                         <div class="filter-icon-container" style="width: 50px; height: 50px; display: inline-block; border-radius: 5px; border: 1px solid #ccc; margin-right: 10px; background: linear-gradient(135deg, #ffffff 0%, #0b374b 100%);" onclick="applyFilter('manga')">
                         </div>
                         <div class="filter-icon-container" style="width: 50px; height: 50px; display: inline-block; border-radius: 5px; border: 1px solid #ccc; margin-right: 10px; background: radial-gradient(circle, transparent 70%, black 100%);" onclick="applyFilter('vignette')">
-                        </div>
-                        
+                        </div>   
                         <!-- Add more filter icons here -->
                     </div>
                     
@@ -741,6 +744,10 @@
                 <h3>Select Your Background</h3>
                 <button class="random-btn" onclick="randomizeBackground()">🎲</button>
                 <div id="preset-backgrounds" class="icon-container">
+                    <div class="background-icon-container" style="text-align: center; line-height: 50px; font-size: 24px; cursor: pointer;">
+                        <span onclick="removeBackground()">❌</span>
+                    </div>
+                    
                     <div class="background-icon-container">
                         <img src="bg1.png" alt="Preset Background 1" class="background-icon" onclick="selectBackground('bg1.png')">
                     </div>
@@ -756,6 +763,7 @@
                     <div class="background-icon-container">
                         <img src="bg5.png" alt="Preset Background 5" class="background-icon" onclick="selectBackground('bg5.png')">
                     </div>
+                    
                 </div>
                 <label for="bgFileInput">Select Background Image:</label>
                 <input type="file" id="bgFileInput" accept="image/png, image/jpeg">
@@ -800,6 +808,19 @@
 
         // Show the simple mode by default
         showTab('simple');
+
+        function removeFilter() {
+            currentFilter = null;
+            vignetteEnabled = false; // Also disable vignette if it's considered a filter
+            drawCanvas();
+        }
+
+        function removeBackground() {
+            useBgImage = false;
+            bgColor = ''; // Optionally reset the background color
+            drawCanvas();
+        }
+
 
 
         let useBgImage = true; // Flag to track if a background image is used
