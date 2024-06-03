@@ -942,7 +942,7 @@
         }
 
         function isOverlapping(newAccessory) {
-            const overlapThreshold = 0.3; // Allow up to 30% overlap
+            const overlapThreshold = 0.2; // Allow up to 30% overlap
 
             for (const accessory of accessories) {
                 const newAccessoryBounds = getAccessoryBounds(newAccessory);
@@ -974,9 +974,7 @@
 
         function randomizeAccessory() {
             return new Promise((resolve) => {
-                if (!cachedAccessoryElements || cachedAccessoryElements.length === 0) {
-                    cacheAccessoryElements(); // Reset accessory elements if cache is empty
-                }
+                cacheAccessoryElements(); // Reset accessory elements before starting the randomization process
 
                 const maxRetries = 3; // Reduce the number of retries
                 let retries = 0;
@@ -987,7 +985,7 @@
                         resolve();
                         return;
                     }
-                    
+
                     retries++;
                     rouletteAnimationForAccessories(cachedAccessoryElements, (finalChoice) => {
                         const accessoryImage = new Image();
@@ -1015,8 +1013,6 @@
                 tryAddAccessory();
             });
         }
-
-
 
         function rouletteAnimationForAccessories(options, callback) {
             let index = 0;
