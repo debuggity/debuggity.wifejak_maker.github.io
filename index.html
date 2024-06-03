@@ -942,19 +942,25 @@
         }
 
         function isOverlapping(newAccessory) {
+            const overlapThreshold = 0.3; // Allow up to 30% overlap
+
             for (const accessory of accessories) {
                 const newAccessoryBounds = getAccessoryBounds(newAccessory);
                 const existingAccessoryBounds = getAccessoryBounds(accessory);
+
+                const overlapX = Math.max(0, Math.min(newAccessoryBounds.x + newAccessoryBounds.width, existingAccessoryBounds.x + existingAccessoryBounds.width) - Math.max(newAccessoryBounds.x, existingAccessoryBounds.x));
+                const overlapY = Math.max(0, Math.min(newAccessoryBounds.y + newAccessoryBounds.height, existingAccessoryBounds.y + existingAccessoryBounds.height) - Math.max(newAccessoryBounds.y, existingAccessoryBounds.y));
                 
-                if (newAccessoryBounds.x < existingAccessoryBounds.x + existingAccessoryBounds.width &&
-                    newAccessoryBounds.x + newAccessoryBounds.width > existingAccessoryBounds.x &&
-                    newAccessoryBounds.y < existingAccessoryBounds.y + existingAccessoryBounds.height &&
-                    newAccessoryBounds.y + newAccessoryBounds.height > existingAccessoryBounds.y) {
-                    return true; // There is overlap
+                const overlapArea = overlapX * overlapY;
+                const newAccessoryArea = newAccessoryBounds.width * newAccessoryBounds.height;
+
+                if (overlapArea / newAccessoryArea > overlapThreshold) {
+                    return true; // There is too much overlap
                 }
             }
-            return false; // No overlap
+            return false; // No significant overlap
         }
+
 
         function getAccessoryBounds(accessory) {
             const characterX = (canvas.width - characterImage.width) / 2;
@@ -968,10 +974,11 @@
 
         function randomizeAccessory() {
             return new Promise((resolve) => {
-                const accessoryElements = document.querySelectorAll('.accessory-icon');
-                const options = Array.from(accessoryElements).filter(el => !accessories.some(acc => acc.image.src === el.src));
+                if (!cachedAccessoryElements) {
+                    cacheAccessoryElements(); // Cache accessory elements if not already done
+                }
 
-                const maxRetries = 5;
+                const maxRetries = 3; // Reduce the number of retries
                 let retries = 0;
 
                 const tryAddAccessory = () => {
@@ -982,7 +989,7 @@
                     }
                     
                     retries++;
-                    rouletteAnimationForAccessories(options, (finalChoice) => {
+                    rouletteAnimationForAccessories(cachedAccessoryElements, (finalChoice) => {
                         const accessoryImage = new Image();
                         accessoryImage.src = finalChoice.src;
 
@@ -996,6 +1003,7 @@
 
                         if (!isOverlapping(tempAccessory)) {
                             accessories.push(tempAccessory);
+                            cachedAccessoryElements = cachedAccessoryElements.filter(el => el.src !== finalChoice.src); // Update cached elements
                             drawCanvas();
                             resolve();
                         } else {
@@ -1008,12 +1016,13 @@
             });
         }
 
+
         function rouletteAnimationForAccessories(options, callback) {
             let index = 0;
             let currentAccessory = null;
 
-            const minDuration = 1500;
-            const maxDuration = 3000;
+            const minDuration = 500; // Reduce minimum duration
+            const maxDuration = 1500; // Reduce maximum duration
             const randomDuration = Math.floor(Math.random() * (maxDuration - minDuration + 1)) + minDuration;
 
             const interval = setInterval(() => {
@@ -1023,7 +1032,7 @@
                 currentAccessory = options[index];
                 previewAccessory(currentAccessory, false);
                 index = (index + 1) % options.length;
-            }, 100);
+            }, 50); // Increase interval speed
 
             setTimeout(() => {
                 clearInterval(interval);
@@ -1034,6 +1043,8 @@
                 callback(finalChoice);
             }, randomDuration);
         }
+
+
 
         function previewAccessory(element, isFinal) {
             const accessoryImage = new Image();
@@ -1233,6 +1244,16 @@
         }
 
         let accessories = [];
+
+        let cachedAccessoryElements = null;
+
+        function cacheAccessoryElements() {
+            cachedAccessoryElements = Array.from(document.querySelectorAll('.accessory-icon')).filter(el => !accessories.some(acc => acc.image.src === el.src));
+        }
+
+        // Cache the accessory elements on page load
+        cacheAccessoryElements();
+
 
         function selectAccessory(element) {
             const path = element.src;
