@@ -1355,18 +1355,22 @@
             ctx.closePath();
             ctx.stroke();
 
-            // Calculate the top-middle point of the rotated rectangle for the text
-            const topMiddleX = (rotatedCorners[0].x + rotatedCorners[1].x) / 2;
-            const topMiddleY = (rotatedCorners[0].y + rotatedCorners[1].y) / 2;
+            // Draw the text only if not rotating or scaling
+            if (interactionMode !== 'rotate' && interactionMode !== 'scale') {
+                // Calculate the top-middle point of the rotated rectangle for the text
+                const topMiddleX = (rotatedCorners[0].x + rotatedCorners[1].x) / 2;
+                const topMiddleY = (rotatedCorners[0].y + rotatedCorners[1].y) / 2;
 
-            // Display the instructions text above the bounding box
-            ctx.font = '16px Arial';
-            ctx.fillStyle = 'red';
-            ctx.textAlign = 'center';
-            ctx.fillText('R: Rotate, S: Scale', topMiddleX, topMiddleY - 10);
+                // Display the instructions text above the bounding box
+                ctx.font = '16px Arial';
+                ctx.fillStyle = 'red';
+                ctx.textAlign = 'center';
+                ctx.fillText('R: Rotate, S: Scale', topMiddleX, topMiddleY - 10);
+            }
 
             ctx.restore();
         }
+
 
 
 
