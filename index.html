@@ -405,9 +405,6 @@
             color: #007bff;
         }
 
-
-
-
         @keyframes rainbowBorder {
             0% {
                 background-position: 0% 50%;
@@ -473,6 +470,8 @@
             .control-panel h3 {
                 font-size: 1.2em;
             }
+
+            
         }
 
 </style>
@@ -487,7 +486,10 @@
     </button>
 
     <canvas id="characterCanvas" width="650" height="650"></canvas>
+
     <div id="heartContainer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999;"></div>
+
+
 
     <div class="tab-container">
         <button class="tab-button" onclick="showTab('simple')">Simple Mode</button>
@@ -737,7 +739,7 @@
                         </div>                    
                     </div>
                 </div>
-                <button id="removeAccessoriesBtn" onclick="removeAllAccessories()">Remove All Accessories</button>
+                <button id="removeAccessoriesBtn" onclick="removeAllAccessories()">Remove All Accessories</button>    
             </div>        
                 
             <div class="control-panel" id="background-selection">
@@ -968,9 +970,41 @@
             const x = characterX + (characterImage.width * accessory.originalX) / 100;
             const y = characterY + (characterImage.height * accessory.originalY) / 100;
             const { width, height } = getAccessoryImageDimensions(accessory.image, characterImage.width * accessory.scale, characterImage.height * accessory.scale);
-            
-            return { x, y, width, height };
+
+            const centerX = x + width / 2;
+            const centerY = y + height / 2;
+
+            const corners = [
+                { x: x, y: y },
+                { x: x + width, y: y },
+                { x: x + width, y: y + height },
+                { x: x, y: y + height }
+            ];
+
+            const angle = accessory.angle * Math.PI / 180;
+            const cos = Math.cos(angle);
+            const sin = Math.sin(angle);
+
+            const rotatedCorners = corners.map(corner => {
+                const dx = corner.x - centerX;
+                const dy = corner.y - centerY;
+                return {
+                    x: centerX + dx * cos - dy * sin,
+                    y: centerY + dx * sin + dy * cos
+                };
+            });
+
+            const xs = rotatedCorners.map(corner => corner.x);
+            const ys = rotatedCorners.map(corner => corner.y);
+
+            const minX = Math.min(...xs);
+            const maxX = Math.max(...xs);
+            const minY = Math.min(...ys);
+            const maxY = Math.max(...ys);
+
+            return { x: minX, y: minY, width: maxX - minX, height: maxY - minY };
         }
+
 
         function randomizeAccessory() {
             return new Promise((resolve) => {
@@ -1251,7 +1285,6 @@
         // Cache the accessory elements on page load
         cacheAccessoryElements();
 
-
         function selectAccessory(element) {
             const path = element.src;
             const percentX = parseFloat(element.dataset.percentX);
@@ -1273,6 +1306,194 @@
             };
         }
 
+        let selectedAccessory = null;
+        let interactionMode = 'drag'; // Default interaction mode
+        let startX, startY;
+        let initialAngle = 0;
+        let initialMouseAngle = 0;
+        let initialDistance = 0;
+
+        function drawSelectionOutline(accessory, characterX, characterY, characterWidth, characterHeight) {
+            const x = characterX + (characterWidth * accessory.originalX) / 100;
+            const y = characterY + (characterHeight * accessory.originalY) / 100;
+            const { width, height } = getAccessoryImageDimensions(accessory.image, characterWidth * accessory.scale, characterHeight * accessory.scale);
+
+            const centerX = x + width / 2;
+            const centerY = y + height / 2;
+
+            // Calculate the corners of the rectangle
+            const corners = [
+                { x: x, y: y },
+                { x: x + width, y: y },
+                { x: x + width, y: y + height },
+                { x: x, y: y + height }
+            ];
+
+            // Rotate the corners around the center
+            const angle = accessory.angle * Math.PI / 180;
+            const cos = Math.cos(angle);
+            const sin = Math.sin(angle);
+
+            const rotatedCorners = corners.map(corner => {
+                const dx = corner.x - centerX;
+                const dy = corner.y - centerY;
+                return {
+                    x: centerX + dx * cos - dy * sin,
+                    y: centerY + dx * sin + dy * cos
+                };
+            });
+
+            // Draw the rotated rectangle
+            ctx.save();
+            ctx.strokeStyle = 'red';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(rotatedCorners[0].x, rotatedCorners[0].y);
+            for (let i = 1; i < rotatedCorners.length; i++) {
+                ctx.lineTo(rotatedCorners[i].x, rotatedCorners[i].y);
+            }
+            ctx.closePath();
+            ctx.stroke();
+
+            // Calculate the top-middle point of the rotated rectangle for the text
+            const topMiddleX = (rotatedCorners[0].x + rotatedCorners[1].x) / 2;
+            const topMiddleY = (rotatedCorners[0].y + rotatedCorners[1].y) / 2;
+
+            // Display the instructions text above the bounding box
+            ctx.font = '16px Arial';
+            ctx.fillStyle = 'red';
+            ctx.textAlign = 'center';
+            ctx.fillText('R: Rotate, S: Scale', topMiddleX, topMiddleY - 10);
+
+            ctx.restore();
+        }
+
+
+
+        // Add event listeners to the canvas
+        canvas.addEventListener('mousedown', onMouseDown);
+        canvas.addEventListener('mousemove', onMouseMove);
+        canvas.addEventListener('mouseup', onMouseUp);
+
+        function onMouseDown(event) {
+            const { offsetX, offsetY } = event;
+            selectedAccessory = getAccessoryAtPosition(offsetX, offsetY);
+            if (selectedAccessory) {
+                startX = offsetX;
+                startY = offsetY;
+                if (interactionMode === 'rotate') {
+                    const centerX = (canvas.width - characterImage.width) / 2 + (characterImage.width * selectedAccessory.originalX) / 100;
+                    const centerY = canvas.height - characterImage.height + (characterImage.height * selectedAccessory.originalY) / 100;
+                    initialAngle = selectedAccessory.angle;
+                    initialMouseAngle = Math.atan2(offsetY - centerY, offsetX - centerX);
+                } else if (interactionMode === 'scale') {
+                    const centerX = (canvas.width - characterImage.width) / 2 + (characterImage.width * selectedAccessory.originalX) / 100;
+                    const centerY = canvas.height - characterImage.height + (characterImage.height * selectedAccessory.originalY) / 100;
+                    initialDistance = Math.sqrt((offsetX - centerX) ** 2 + (offsetY - centerY) ** 2);
+                }
+            }
+        }
+
+        function onMouseMove(event) {
+            if (!selectedAccessory) return;
+
+            const { offsetX, offsetY } = event;
+            const dx = offsetX - startX;
+            const dy = offsetY - startY;
+
+            const characterX = (canvas.width - characterImage.width) / 2;
+            const characterY = canvas.height - characterImage.height;
+            const centerX = characterX + (characterImage.width * selectedAccessory.originalX) / 100;
+            const centerY = characterY + (characterImage.height * selectedAccessory.originalY) / 100;
+
+            if (interactionMode === 'drag') {
+                selectedAccessory.originalX += (dx / canvas.width) * 100;
+                selectedAccessory.originalY += (dy / canvas.height) * 100;
+                startX = offsetX;
+                startY = offsetY;
+            } else if (interactionMode === 'rotate') {
+                const currentMouseAngle = Math.atan2(offsetY - centerY, offsetX - centerX);
+                const angleDifference = currentMouseAngle - initialMouseAngle;
+                selectedAccessory.angle = initialAngle + angleDifference * (180 / Math.PI);
+            } else if (interactionMode === 'scale') {
+                const currentDistance = Math.sqrt((offsetX - centerX) ** 2 + (offsetY - centerY) ** 2);
+                const scaleChange = currentDistance / initialDistance;
+                selectedAccessory.scale = Math.max(0.1, selectedAccessory.scale * scaleChange);
+                initialDistance = currentDistance;
+            }
+
+            drawCanvas();
+        }
+
+        function onMouseUp() {
+            selectedAccessory = null;
+            interactionMode = 'drag'; // Reset to default interaction mode
+            drawCanvas(); // Redraw the canvas to remove the selection outline
+        }
+
+        // Function to get accessory at mouse position
+        const getAccessoryAtPosition = (x, y) => {
+            const characterX = (canvas.width - characterImage.width) / 2;
+            const characterY = canvas.height - characterImage.height;
+
+            for (const accessory of accessories) {
+                const accessoryX = characterX + (characterImage.width * accessory.originalX) / 100;
+                const accessoryY = characterY + (characterImage.height * accessory.originalY) / 100;
+                const { width, height } = getAccessoryImageDimensions(accessory.image, characterImage.width * accessory.scale, characterImage.height * accessory.scale);
+
+                if (isPointInRotatedRect(x, y, accessoryX, accessoryY, width, height, accessory.angle)) {
+                    return accessory;
+                }
+            }
+            return null;
+        };
+
+        function isPointInRotatedRect(px, py, rx, ry, rw, rh, angle) {
+            // Convert angle to radians
+            const rad = angle * Math.PI / 180;
+            const cos = Math.cos(rad);
+            const sin = Math.sin(rad);
+
+            // Calculate the center of the rectangle
+            const cx = rx + rw / 2;
+            const cy = ry + rh / 2;
+
+            // Translate the point to the rectangle's coordinate system
+            const translatedX = px - cx;
+            const translatedY = py - cy;
+
+            // Rotate the point back
+            const rotatedX = translatedX * cos + translatedY * sin;
+            const rotatedY = -translatedX * sin + translatedY * cos;
+
+            // Translate the point back to the original coordinate system
+            const localX = rotatedX + rw / 2;
+            const localY = rotatedY + rh / 2;
+
+            // Check if the point is within the bounds of the rectangle
+            return localX >= 0 && localX <= rw && localY >= 0 && localY <= rh;
+        }
+
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'r') {
+                interactionMode = 'rotate';
+            } else if (event.key === 's') {
+                interactionMode = 'scale';
+            } else if (event.key === 'd') {
+                interactionMode = 'drag';
+            }
+        });
+
+        document.addEventListener('keyup', (event) => {
+            if (event.key === 'r' || event.key === 's') {
+                interactionMode = 'drag';
+            }
+        });
+
+
+
+
         const drawAccessories = (characterX, characterY, characterWidth, characterHeight) => {
             accessories.forEach(accessory => {
                 const x = characterX + (characterWidth * accessory.originalX) / 100;
@@ -1286,6 +1507,8 @@
                 ctx.restore();
             });
         };
+
+
 
         const getAccessoryImageDimensions = (image, maxWidth, maxHeight) => {
             const aspectRatio = image.width / image.height;
@@ -1607,10 +1830,6 @@
         function drawCanvas() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Log the current background image source and color
-            console.log("useBgImage:", useBgImage);
-            console.log("bgColor:", bgColor);
-
             // Draw the background first
             if (useBgImage) {
                 const { width, height, offsetX, offsetY } = getImageDimensions(bgImage, canvas.width, canvas.height);
@@ -1638,6 +1857,11 @@
 
                 drawAccessories(x, y, width, height);
 
+                // Highlight the selected accessory if one is selected
+                if (selectedAccessory) {
+                    drawSelectionOutline(selectedAccessory, x, y, width, height);
+                }
+
                 // Apply the currently selected filter to the entire canvas
                 if (currentFilter) {
                     applyFilterToCanvas(currentFilter);
@@ -1652,6 +1876,8 @@
                 applyVignetteFilterToCanvas();
             }
         }
+
+
 
         const scaleRange = document.getElementById('scaleRange');
 
