@@ -986,8 +986,40 @@
         });
 
         function randomizeCharacter() {
-            const characterImages = ['regular.png', 'very-happy.png', 'celebrating.png', 'crying.png', 'hands-up.png', 'commando.png', 'blushing.png', 'eye-roll.png'];
-            rouletteAnimation(characterImages, selectCharacter);
+            const defaultCharacterImages = [
+                'regular.png', 
+                'very-happy.png', 
+                'celebrating.png', 
+                'crying.png', 
+                'hands-up.png', 
+                'commando.png', 
+                'blushing.png', 
+                'eye-roll.png'
+            ];
+            const specialCharacterImages = [
+                'specials/apu.png',
+                'specials/artist.png',
+                'specials/astronaut.png',
+                'specials/chef.png',
+                'specials/crying.png',
+                'specials/goblin.png',
+                'specials/goth.png',
+                'specials/hiker.png',
+                'specials/kiss.png',
+                'specials/pearl.png',
+                'specials/princess.png',
+                'specials/scuba.png',
+                'specials/shushing.png',
+                'specials/worker.png',
+                'specials/zelda.png'
+            ];
+
+            const allCharacterImages = [
+                ...defaultCharacterImages.map(img => ({ path: img, isSpecial: false })),
+                ...specialCharacterImages.map(img => ({ path: img, isSpecial: true }))
+            ];
+
+            rouletteAnimation(allCharacterImages, ({ path, isSpecial }) => selectCharacter(path, isSpecial));
         }
 
         function rouletteAnimation(options, callback) {
