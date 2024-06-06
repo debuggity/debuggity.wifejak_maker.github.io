@@ -417,6 +417,23 @@
             }
         }
 
+        /* Add these styles to the existing CSS */
+        #default-characters, #special-characters {
+            display: flex;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            width: 100%;
+            max-width: 240px;
+        }
+
+        .character-icon-container {
+            flex: 0 0 auto; /* Ensure items do not shrink */
+        }
+
         @media (max-width: 1200px) {
             body {
                 transform: scale(0.8);
@@ -540,6 +557,56 @@
                         <img src="eye-roll.png" alt="Default Character 6" class="character-icon" onclick="selectCharacter('eye-roll.png')">
                     </div>
                 </div>
+                <h3>Special Wifejak's</h3>
+                <div id="special-characters" class="icon-container">
+                    <div class="character-icon-container">
+                        <img src="specials/apu.png" alt="Special Character 1" class="character-icon" onclick="selectCharacter('specials/apu.png', true)">
+                    </div>
+                    <div class="character-icon-container">
+                        <img src="specials/artist.png" alt="Special Character 2" class="character-icon" onclick="selectCharacter('specials/artist.png', true)">
+                    </div>
+                    <div class="character-icon-container">
+                        <img src="specials/astronaut.png" alt="Special Character 3" class="character-icon" onclick="selectCharacter('specials/astronaut.png', true)">
+                    </div>
+                    <div class="character-icon-container">
+                        <img src="specials/chef.png" alt="Special Character 4" class="character-icon" onclick="selectCharacter('specials/chef.png', true)">
+                    </div>
+                    <div class="character-icon-container">
+                        <img src="specials/crying.png" alt="Special Character 5" class="character-icon" onclick="selectCharacter('specials/crying.png', true)">
+                    </div>
+                    <div class="character-icon-container">
+                        <img src="specials/goblin.png" alt="Special Character 6" class="character-icon" onclick="selectCharacter('specials/goblin.png', true)">
+                    </div>
+                    <div class="character-icon-container">
+                        <img src="specials/goth.png" alt="Special Character 7" class="character-icon" onclick="selectCharacter('specials/goth.png', true)">
+                    </div>
+                    <div class="character-icon-container">
+                        <img src="specials/hiker.png" alt="Special Character 8" class="character-icon" onclick="selectCharacter('specials/hiker.png', true)">
+                    </div>
+                    <div class="character-icon-container">
+                        <img src="specials/kiss.png" alt="Special Character 9" class="character-icon" onclick="selectCharacter('specials/kiss.png', true)">
+                    </div>
+                    <div class="character-icon-container">
+                        <img src="specials/pearl.png" alt="Special Character 10" class="character-icon" onclick="selectCharacter('specials/pearl.png', true)">
+                    </div>
+                    <div class="character-icon-container">
+                        <img src="specials/princess.png" alt="Special Character 11" class="character-icon" onclick="selectCharacter('specials/princess.png', true)">
+                    </div>
+                    <div class="character-icon-container">
+                        <img src="specials/scuba.png" alt="Special Character 12" class="character-icon" onclick="selectCharacter('specials/scuba.png', true)">
+                    </div>
+                    <div class="character-icon-container">
+                        <img src="specials/shushing.png" alt="Special Character 13" class="character-icon" onclick="selectCharacter('specials/shushing.png', true)">
+                    </div>
+                    <div class="character-icon-container">
+                        <img src="specials/worker.png" alt="Special Character 14" class="character-icon" onclick="selectCharacter('specials/worker.png', true)">
+                    </div>
+                    <div class="character-icon-container">
+                        <img src="specials/zelda.png" alt="Special Character 15" class="character-icon" onclick="selectCharacter('specials/zelda.png', true)">
+                    </div>
+                    <!-- Add more special characters here -->
+                </div>
+
                 <label for="fileInput">Select Character Image:</label>
                 <input type="file" id="fileInput" accept="image/png">
                 <div class="scale-slider">
@@ -965,11 +1032,11 @@
 
 
         function getAccessoryBounds(accessory) {
-            const characterX = (canvas.width - characterImage.width) / 2;
-            const characterY = canvas.height - characterImage.height;
-            const x = characterX + (characterImage.width * accessory.originalX) / 100;
-            const y = characterY + (characterImage.height * accessory.originalY) / 100;
-            const { width, height } = getAccessoryImageDimensions(accessory.image, characterImage.width * accessory.scale, characterImage.height * accessory.scale);
+            const characterX = (canvas.width - characterImage.width * characterScale) / 2;
+            const characterY = canvas.height - characterImage.height * characterScale;
+            const x = characterX + (characterImage.width * characterScale * accessory.originalX) / 100;
+            const y = characterY + (characterImage.height * characterScale * accessory.originalY) / 100;
+            const { width, height } = getAccessoryImageDimensions(accessory.image, characterImage.width * characterScale * accessory.scale, characterImage.height * characterScale * accessory.scale);
 
             const centerX = x + width / 2;
             const centerY = y + height / 2;
@@ -1004,6 +1071,7 @@
 
             return { x: minX, y: minY, width: maxX - minX, height: maxY - minY };
         }
+
 
 
         function randomizeAccessory() {
@@ -1398,6 +1466,8 @@
             }
         }
 
+        const MAX_ACCESSORY_SCALE = 2.0; // Define the maximum scale value for accessories
+
         function onMouseMove(event) {
             if (!selectedAccessory) return;
 
@@ -1422,12 +1492,13 @@
             } else if (interactionMode === 'scale') {
                 const currentDistance = Math.sqrt((offsetX - centerX) ** 2 + (offsetY - centerY) ** 2);
                 const scaleChange = currentDistance / initialDistance;
-                selectedAccessory.scale = Math.max(0.1, selectedAccessory.scale * scaleChange);
+                selectedAccessory.scale = Math.min(MAX_ACCESSORY_SCALE, Math.max(0.1, selectedAccessory.scale * scaleChange)); // Ensure the scale doesn't exceed the maximum
                 initialDistance = currentDistance;
             }
 
             drawCanvas();
         }
+
 
         function onMouseUp() {
             selectedAccessory = null;
@@ -1437,13 +1508,13 @@
 
         // Function to get accessory at mouse position
         const getAccessoryAtPosition = (x, y) => {
-            const characterX = (canvas.width - characterImage.width) / 2;
-            const characterY = canvas.height - characterImage.height;
+            const characterX = (canvas.width - characterImage.width * characterScale) / 2;
+            const characterY = canvas.height - characterImage.height * characterScale;
 
             for (const accessory of accessories) {
-                const accessoryX = characterX + (characterImage.width * accessory.originalX) / 100;
-                const accessoryY = characterY + (characterImage.height * accessory.originalY) / 100;
-                const { width, height } = getAccessoryImageDimensions(accessory.image, characterImage.width * accessory.scale, characterImage.height * accessory.scale);
+                const accessoryX = characterX + (characterImage.width * characterScale * accessory.originalX) / 100;
+                const accessoryY = characterY + (characterImage.height * characterScale * accessory.originalY) / 100;
+                const { width, height } = getAccessoryImageDimensions(accessory.image, characterImage.width * characterScale * accessory.scale, characterImage.height * characterScale * accessory.scale);
 
                 if (isPointInRotatedRect(x, y, accessoryX, accessoryY, width, height, accessory.angle)) {
                     return accessory;
@@ -1451,6 +1522,7 @@
             }
             return null;
         };
+
 
         function isPointInRotatedRect(px, py, rx, ry, rw, rh, angle) {
             // Convert angle to radians
@@ -1514,6 +1586,7 @@
 
 
 
+
         const getAccessoryImageDimensions = (image, maxWidth, maxHeight) => {
             const aspectRatio = image.width / image.height;
 
@@ -1569,11 +1642,32 @@
         // JavaScript: Handle Character Selection and Upload
 
         // Function to select a default character
-        function selectCharacter(characterPath) {
-            // Set the selected character image to the chosen default character
+        function selectCharacter(characterPath, isSpecial) {
             characterImage.src = characterPath;
-            characterImage.onload = drawCanvas;
+            characterImage.onload = () => {
+                if (isSpecial) {
+                    // Disable color changes for special characters
+                    disableColorPickers();
+                } else {
+                    // Enable color changes for regular characters
+                    enableColorPickers();
+                }
+                drawCanvas();
+            };
         }
+
+        function disableColorPickers() {
+            document.getElementById('skinColor').disabled = true;
+            document.getElementById('hairColor').disabled = true;
+            document.getElementById('shirtColor').disabled = true;
+        }
+
+        function enableColorPickers() {
+            document.getElementById('skinColor').disabled = false;
+            document.getElementById('hairColor').disabled = false;
+            document.getElementById('shirtColor').disabled = false;
+        }
+
 
         // Function to handle character upload
         function uploadCharacter(event) {
