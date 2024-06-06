@@ -2003,7 +2003,17 @@
             ctx.drawImage(offscreenCanvas, 0, 0);
         };
 
-        const updateImage = () => {
+        let isSpecialCharacter = false; // Flag to track if a special character is selected
+
+        function selectCharacter(characterPath, isSpecial) {
+            characterImage.src = characterPath;
+            characterImage.onload = () => {
+                isSpecialCharacter = isSpecial;
+                drawCanvas();
+            };
+        }
+
+        function updateImage() {
             if (imageData) {
                 imageData.data.set(originalPixels);
 
@@ -2018,17 +2028,19 @@
                     const a = originalPixels[i + 3];
 
                     if (a > 0) { // Only apply color shift if the pixel is not transparent
-                        
+
                         if (isEyeColor(r, g, b)) {
                             imageData.data[i] = 243;
                             imageData.data[i + 1] = 236;
                             imageData.data[i + 2] = 235;
-                        } else if (isSkinColor(r, g, b)) {
-                            applyColorShift(i, skinColor);
-                        } else if (isHairColor(r, g, b)) {
-                            applyColorShift(i, hairColor);
-                        } else if (isShirtColor(r, g, b) & i > (originalPixels.length * .63)) {
-                            applyColorShift(i, shirtColor);
+                        } else if (!isSpecialCharacter) {
+                            if (isSkinColor(r, g, b)) {
+                                applyColorShift(i, skinColor);
+                            } else if (isHairColor(r, g, b)) {
+                                applyColorShift(i, hairColor);
+                            } else if (isShirtColor(r, g, b) && i > (originalPixels.length * .63)) {
+                                applyColorShift(i, shirtColor);
+                            }
                         }
                     }
                 }
@@ -2037,7 +2049,7 @@
                 const y = canvas.height - imageData.height;
                 offscreenCtx.putImageData(imageData, x, y);
             }
-        };
+        }
 
         const hexToRgb = (hex) => {
             const bigint = parseInt(hex.slice(1), 16);
