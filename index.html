@@ -29,6 +29,39 @@
             font-size: 2em;
             margin-bottom: 20px;
         }
+
+        /* Firefox */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: #234161 #f0f0f0; /* Thumb color and track color */
+        }
+
+        /* Webkit Browsers (Chrome, Safari, etc.) */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px; /* For horizontal scrollbar */
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f0f0f0; /* Background of the track */
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: #273647; /* Scrollbar thumb color */
+            border-radius: 5px;
+            border: 2px solid #f0f0f0; /* Gives a padding-like effect */
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background-color: #21354b; /* Darker shade on hover */
+        }
+
+        .active {
+            cursor: grabbing; /* Change the cursor when dragging */
+            cursor: -webkit-grabbing;
+        }
+
         .controls {
             display: flex;
             justify-content: space-between;
@@ -166,12 +199,27 @@
             padding-bottom: 10px; /* To ensure the scrollbar does not hide the content */
         }
 
+        .filters-wrapper, .accessories-wrapper {
+            overflow-x: auto; /* Ensure horizontal scrolling is enabled */
+            overflow-y: auto; /* Ensure vertical scrolling is visible if needed */
+            white-space: nowrap; /* Prevent items from wrapping */
+            display: flex; /* Ensure this is set to flex for inline layout */
+            flex-wrap: wrap; /* Allow wrapping */
+            gap: 5px; /* Maintain gap between items */
+            padding: 0px; /* Adjust padding for internal spacing */
+            width: 220px;
+        }
+
         .horizontal-scroll-container {
+            overflow-x: auto; /* Ensure horizontal scrolling is enabled */
+            overflow-y: auto; /* Ensure vertical scrolling is visible if needed */
+            white-space: nowrap; /* Prevent items from wrapping */
             display: flex; /* Ensure this is set to flex for inline layout */
             flex-wrap: wrap; /* Allow wrapping */
             gap: 5px; /* Maintain gap between items */
             padding: 0px; /* Adjust padding for internal spacing */
             width: 200px;
+            min-height: 120px;
         }
 
         button#saveBtn {
@@ -427,7 +475,7 @@
             border-radius: 5px;
             box-sizing: border-box;
             width: 100%;
-            max-width: 240px;
+            max-width: 280px;
         }
 
         .character-icon-container {
@@ -832,6 +880,9 @@
                     <div class="background-icon-container">
                         <img src="bg5.png" alt="Preset Background 5" class="background-icon" onclick="selectBackground('bg5.png')">
                     </div>
+                    <div class="background-icon-container">
+                        <img src="bg6.png" alt="Preset Background 6" class="background-icon" onclick="selectBackground('bg6.png')">
+                    </div>
                     
                 </div>
                 <label for="bgFileInput">Select Background Image:</label>
@@ -1038,7 +1089,7 @@
 
         function randomizeBackground() {
             useBgImage = true; // Set the flag to true since a background image is used
-            const backgroundImages = ['bg1.png', 'bg2.png', 'bg3.png', 'bg4.png', 'bg5.png'];
+            const backgroundImages = ['bg1.png', 'bg2.png', 'bg3.png', 'bg4.png', 'bg5.png', 'bg6.png'];
             rouletteAnimation(backgroundImages, selectBackground);
         }
 
@@ -1061,7 +1112,6 @@
             }
             return false; // No significant overlap
         }
-
 
         function getAccessoryBounds(accessory) {
             const characterX = (canvas.width - characterImage.width * characterScale) / 2;
@@ -1214,8 +1264,8 @@
 
             let interval = setInterval(() => {
                 let randomColor;
-                if (colorInputId === 'skinColor' && Math.random() < 0.85) {
-                    // 85% chance to choose a skin tone
+                if (colorInputId === 'skinColor' && Math.random() < 0.90) {
+                    // 90% chance to choose a skin tone
                     randomColor = getRandomSkinTone();
                 } else if (colorInputId === 'hairColor' && Math.random() < 0.85) {
                     // 85% chance to choose a beautiful hair color
@@ -2180,5 +2230,53 @@
 
 
     </script>
+
+    <script>
+        function enableDragScroll(containerSelector) {
+            const containers = document.querySelectorAll(containerSelector);
+            
+            containers.forEach(container => {
+                let isDown = false;
+                let startX, startY, scrollLeft, scrollTop;
+
+                container.addEventListener('mousedown', (e) => {
+                    isDown = true;
+                    container.classList.add('active');
+                    startX = e.pageX - container.offsetLeft;
+                    startY = e.pageY - container.offsetTop;
+                    scrollLeft = container.scrollLeft;
+                    scrollTop = container.scrollTop;
+                    e.preventDefault();
+                });
+
+                container.addEventListener('mouseleave', () => {
+                    isDown = false;
+                    container.classList.remove('active');
+                });
+
+                container.addEventListener('mouseup', () => {
+                    isDown = false;
+                    container.classList.remove('active');
+                });
+
+                container.addEventListener('mousemove', (e) => {
+                    if (!isDown) return;
+                    e.preventDefault();
+                    const x = e.pageX - container.offsetLeft;
+                    const y = e.pageY - container.offsetTop;
+                    const walkX = (x - startX) * 2; // Adjust scroll speed as needed
+                    const walkY = (y - startY) * 2; // Adjust scroll speed as needed
+                    container.scrollLeft = scrollLeft - walkX;
+                    container.scrollTop = scrollTop - walkY;
+                });
+            });
+        }
+
+        // Call the function for your specific containers
+        enableDragScroll('.horizontal-scroll-container');
+        enableDragScroll('.filters-wrapper');
+        enableDragScroll('.accessories-wrapper');
+    </script>
+
 </body>
 </html>
