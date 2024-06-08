@@ -608,7 +608,8 @@
     </button>
 
     <div class="main-container">
-        <canvas id="characterCanvas" width="650" height="650"></canvas>
+        <canvas id="characterCanvas" width="650" height="650" style="position: relative; z-index: 1;"></canvas>
+
 
         <div id="heartContainer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999;"></div>
 
@@ -922,7 +923,42 @@
                                 <img src="accessories/FLOKI.png" alt="Accessory 2" class="accessory-icon" 
                                     data-percent-x="52" data-percent-y="63" data-scale="0.4" data-angle="0" 
                                     onclick="selectAccessory(this)">
-                            </div>                    
+                            </div>      
+                            <div class="accessory-icon-container">
+                                <img src="accessories/bird_hand.PNG" alt="Accessory 2" class="accessory-icon" 
+                                    data-percent-x="0" data-percent-y="0" data-scale="1" data-angle="0" 
+                                    onclick="selectAccessory(this)">
+                            </div>    
+                            <div class="accessory-icon-container">
+                                <img src="accessories/blue-bow.PNG" alt="Accessory 2" class="accessory-icon" 
+                                    data-percent-x="0" data-percent-y="0" data-scale="1" data-angle="0" 
+                                    onclick="selectAccessory(this)">
+                            </div>    
+                            <div class="accessory-icon-container">
+                                <img src="accessories/pink-bow.PNG" alt="Accessory 2" class="accessory-icon" 
+                                    data-percent-x="0" data-percent-y="0" data-scale="1" data-angle="0" 
+                                    onclick="selectAccessory(this)">
+                            </div>    
+                            <div class="accessory-icon-container">
+                                <img src="accessories/pink-bow-2.PNG" alt="Accessory 2" class="accessory-icon" 
+                                    data-percent-x="0" data-percent-y="0" data-scale="1" data-angle="0" 
+                                    onclick="selectAccessory(this)">
+                            </div>    
+                            <div class="accessory-icon-container">
+                                <img src="accessories/lanterns.png" alt="Accessory 2" class="accessory-icon" 
+                                    data-percent-x="0" data-percent-y="0" data-scale="1" data-angle="0" 
+                                    onclick="selectAccessory(this)">
+                            </div>    
+                            <div class="accessory-icon-container">
+                                <img src="accessories/sword.PNG" alt="Accessory 2" class="accessory-icon" 
+                                    data-percent-x="0" data-percent-y="0" data-scale="1" data-angle="0" 
+                                    onclick="selectAccessory(this)">
+                            </div>    
+                            <div class="accessory-icon-container">
+                                <img src="accessories/umbrella.PNG" alt="Accessory 2" class="accessory-icon" 
+                                    data-percent-x="0" data-percent-y="0" data-scale="1" data-angle="0" 
+                                    onclick="selectAccessory(this)">
+                            </div>                  
                         </div>
                     </div>
                     <button id="removeAccessoriesBtn" onclick="removeAllAccessories()">Remove All Accessories</button>    
@@ -1750,20 +1786,20 @@
 
 
 
-        const drawAccessories = (characterX, characterY, characterWidth, characterHeight) => {
-            accessories.forEach(accessory => {
+        const drawAccessories = (characterX, characterY, characterWidth, characterHeight, accessoriesToDraw) => {
+            accessoriesToDraw.forEach(accessory => {
                 const x = characterX + (characterWidth * accessory.originalX) / 100;
                 const y = characterY + (characterHeight * accessory.originalY) / 100;
                 const { width, height } = getAccessoryImageDimensions(accessory.image, characterWidth * accessory.scale, characterHeight * accessory.scale);
 
                 ctx.save();
+                ctx.globalCompositeOperation = 'source-over';
                 ctx.translate(x + width / 2, y + height / 2);
                 ctx.rotate(accessory.angle * Math.PI / 180);
                 ctx.drawImage(accessory.image, -width / 2, -height / 2, width, height);
                 ctx.restore();
             });
         };
-
 
 
 
@@ -2117,6 +2153,24 @@
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
             }
 
+            // Separate lanterns from other accessories
+            const lanterns = accessories.filter(accessory => accessory.image.src.includes('lanterns'));
+            const otherAccessories = accessories.filter(accessory => !accessory.image.src.includes('lanterns'));
+
+            // Draw lanterns (in front of the background but behind the character)
+            lanterns.forEach(accessory => {
+                const x = (canvas.width - characterImage.width * characterScale) / 2 + (characterImage.width * characterScale * accessory.originalX) / 100;
+                const y = canvas.height - characterImage.height * characterScale + (characterImage.height * characterScale * accessory.originalY) / 100;
+                const { width, height } = getAccessoryImageDimensions(accessory.image, characterImage.width * characterScale * accessory.scale, characterImage.height * characterScale * accessory.scale);
+
+                ctx.save();
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.translate(x + width / 2, y + height / 2);
+                ctx.rotate(accessory.angle * Math.PI / 180);
+                ctx.drawImage(accessory.image, -width / 2, -height / 2, width, height);
+                ctx.restore();
+            });
+
             // Draw the character image
             if (characterImage.src) {
                 const { width, height } = getCharacterImageDimensions(characterImage, canvas.width * characterScale, canvas.height * characterScale);
@@ -2133,7 +2187,7 @@
                 updateImage();
                 ctx.drawImage(offscreenCanvas, 0, 0);
 
-                drawAccessories(x, y, width, height);
+                drawAccessories(x, y, width, height, otherAccessories); // Pass only other accessories to draw
 
                 // Highlight the selected accessory if one is selected
                 if (selectedAccessory) {
@@ -2154,8 +2208,6 @@
                 applyVignetteFilterToCanvas();
             }
         }
-
-
 
         const scaleRange = document.getElementById('scaleRange');
 
