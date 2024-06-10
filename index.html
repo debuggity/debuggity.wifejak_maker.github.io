@@ -1272,20 +1272,43 @@
         }
         loadU2NetModel(); // Load the model on page load
 
-        // Helper function to resize image to 320x320
+        // Helper function to resize image to fit within 320x320 canvas while preserving aspect ratio
         function resizeImageTo320(imgElement) {
             return new Promise((resolve) => {
+                const originalWidth = imgElement.width;
+                const originalHeight = imgElement.height;
+                const aspectRatio = originalWidth / originalHeight;
+
+                let canvasWidth, canvasHeight;
+
+                if (aspectRatio > 1) {
+                    // Landscape orientation: width > height
+                    canvasWidth = 320;
+                    canvasHeight = 320 / aspectRatio;
+                } else {
+                    // Portrait or square orientation: height >= width
+                    canvasHeight = 320;
+                    canvasWidth = 320 * aspectRatio;
+                }
+
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
                 canvas.width = 320;
                 canvas.height = 320;
-                ctx.drawImage(imgElement, 0, 0, 320, 320);
+
+                // Clear the canvas
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                // Draw the image centered on the canvas
+                const offsetX = (320 - canvasWidth) / 2;
+                const offsetY = (320 - canvasHeight) / 2;
+                ctx.drawImage(imgElement, offsetX, offsetY, canvasWidth, canvasHeight);
+
                 const resizedImage = new Image();
                 resizedImage.src = canvas.toDataURL();
                 resizedImage.onload = () => resolve(resizedImage);
             });
         }
-
 
         // Function to remove background from an image
         async function removeBackgroundFromImage(imgElement) {
@@ -1328,14 +1351,16 @@
                 const newImgElement = new Image();
                 newImgElement.src = offscreenCanvas.toDataURL();
                 newImgElement.onload = () => {
-                    // Create a canvas to resize the image
-                    const aspectRatio = newImgElement.width / newImgElement.height;
-                    console.log(aspectRatio);
+                    // Calculate the actual aspect ratio and resize accordingly
+                    const aspectRatio = imgElement.naturalWidth / imgElement.naturalHeight;
                     let canvasWidth, canvasHeight;
+
                     if (aspectRatio > 1) {
+                        // Landscape orientation
                         canvasWidth = 320;
                         canvasHeight = 320 / aspectRatio;
                     } else {
+                        // Portrait or square orientation
                         canvasHeight = 320;
                         canvasWidth = 320 * aspectRatio;
                     }
@@ -1352,6 +1377,7 @@
                 };
             });
         }
+
 
         const accessoryFileInput = document.getElementById('accessoryFileInput');
 
