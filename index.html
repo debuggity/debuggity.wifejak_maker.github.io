@@ -1330,6 +1330,7 @@
                 newImgElement.onload = () => {
                     // Create a canvas to resize the image
                     const aspectRatio = newImgElement.width / newImgElement.height;
+                    console.log(aspectRatio);
                     let canvasWidth, canvasHeight;
                     if (aspectRatio > 1) {
                         canvasWidth = 320;
