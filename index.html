@@ -1809,7 +1809,7 @@
         let initialMouseAngle = 0;
         let initialDistance = 0;
         let selectedAccessory = null;
-        const MAX_ACCESSORY_SCALE = 1.5; // Define the maximum scale value for accessories
+        const MAX_ACCESSORY_SCALE = 1.2; // Define the maximum scale value for accessories
 
         function drawSelectionOutline(accessory, characterX, characterY, characterWidth, characterHeight) {
             const x = characterX + (characterWidth * accessory.originalX) / 100;
@@ -1889,7 +1889,7 @@
                 const rotateDist = Math.sqrt((rotatedX - rotateButtonX) ** 2 + (rotatedY - rotateButtonY) ** 2);
                 const scaleDist = Math.sqrt((rotatedX - scaleButtonX) ** 2 + (rotatedY - scaleButtonY) ** 2);
 
-                if (rotateDist < 15) { // Detect click on rotate button
+                if (rotateDist < 20) { // Detect click on rotate button
                     interactionMode = 'rotate';
                     initialAngle = clickedAccessory.angle;
                     initialMouseAngle = Math.atan2(offsetY - centerY, offsetX - centerX);
@@ -1910,36 +1910,39 @@
             if (!selectedAccessory || !interactionMode) return;
 
             const { offsetX, offsetY } = event;
-            const dx = offsetX - startX;
-            const dy = offsetY - startY;
-
             const { width, height } = getAccessoryImageDimensions(selectedAccessory.image, characterImage.width * characterScale * selectedAccessory.scale, characterImage.height * characterScale * selectedAccessory.scale);
             const centerX = (canvas.width - characterImage.width * characterScale) / 2 + (characterImage.width * characterScale * selectedAccessory.originalX) / 100 + width / 2;
             const centerY = canvas.height - characterImage.height * characterScale + (characterImage.height * characterScale * selectedAccessory.originalY) / 100 + height / 2;
 
             if (interactionMode === 'drag') {
-                selectedAccessory.originalX += (dx / canvas.width) * 100;
-                selectedAccessory.originalY += (dy / canvas.height) * 100;
+                selectedAccessory.originalX += (offsetX - startX) / canvas.width * 100;
+                selectedAccessory.originalY += (offsetY - startY) / canvas.height * 100;
                 startX = offsetX;
                 startY = offsetY;
             } else if (interactionMode === 'rotate') {
                 const currentMouseAngle = Math.atan2(offsetY - centerY, offsetX - centerX);
                 const angleDifference = currentMouseAngle - initialMouseAngle;
-                selectedAccessory.angle = initialAngle + (angleDifference * 180 / Math.PI);
+                selectedAccessory.angle = initialAngle + angleDifference * (180 / Math.PI);
             } else if (interactionMode === 'scale') {
+                // Calculate the initial and current distance from the center of the accessory to the cursor
                 const initialDistance = Math.sqrt((startX - centerX) ** 2 + (startY - centerY) ** 2);
                 const currentDistance = Math.sqrt((offsetX - centerX) ** 2 + (offsetY - centerY) ** 2);
 
-                // Calculate scale factor based on change in distance
-                let scaleFactor = currentDistance / initialDistance;
-                
-                // Apply a smoothing factor for a more gradual change
-                const smoothingFactor = 0.05; // You can adjust this factor for more or less sensitivity
-                selectedAccessory.scale = Math.max(0.1, Math.min(MAX_ACCESSORY_SCALE, selectedAccessory.scale + (scaleFactor - 1) * smoothingFactor));
+                // Calculate the new scale factor based on the change in distance
+                const scaleFactor = currentDistance / initialDistance;
+
+                // Apply the new scale factor while ensuring it stays within a reasonable range
+                selectedAccessory.scale = Math.max(0.1, Math.min(MAX_ACCESSORY_SCALE, selectedAccessory.scale * scaleFactor));
+
+                // Update the starting points for the next movement calculation
+                startX = offsetX;
+                startY = offsetY;
             }
 
             drawCanvas();
         }
+
+
 
 
 
@@ -2039,8 +2042,24 @@
 
         function removeAllAccessories() {
             accessories = [];
+            selectedAccessory = null;
             drawCanvas();
         }
+
+        // Add this at the start of your script to disable the default context menu
+        canvas.addEventListener('contextmenu', function(event) {
+            deselectAccessory();
+        });
+
+        function deselectAccessory() {
+            // Deselect any selected accessory
+            selectedAccessory = null;
+
+            // Redraw the canvas to reflect the changes
+            drawCanvas();
+        }
+
+
 
         let characterImage = new Image();
         let bgImage = new Image();
@@ -2573,6 +2592,7 @@
         };
 
         const saveCharacter = () => {
+            selectedAccessory = null;
             drawCanvas(); // Ensure canvas is up-to-date
             const link = document.createElement('a');
             link.download = 'character.png';
