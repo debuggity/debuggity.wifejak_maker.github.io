@@ -1462,9 +1462,6 @@
             }
         });
 
-
-
-
         function getAccessoryBounds(accessory) {
             const characterX = (canvas.width - characterImage.width * characterScale) / 2;
             const characterY = canvas.height - characterImage.height * characterScale;
@@ -1475,16 +1472,16 @@
             const centerX = x + width / 2;
             const centerY = y + height / 2;
 
+            const angle = accessory.angle * Math.PI / 180;
+            const cos = Math.cos(angle);
+            const sin = Math.sin(angle);
+
             const corners = [
                 { x: x, y: y },
                 { x: x + width, y: y },
                 { x: x + width, y: y + height },
                 { x: x, y: y + height }
             ];
-
-            const angle = accessory.angle * Math.PI / 180;
-            const cos = Math.cos(angle);
-            const sin = Math.sin(angle);
 
             const rotatedCorners = corners.map(corner => {
                 const dx = corner.x - centerX;
@@ -1505,8 +1502,6 @@
 
             return { x: minX, y: minY, width: maxX - minX, height: maxY - minY };
         }
-
-
 
         function randomizeAccessory() {
             return new Promise((resolve) => {
@@ -1808,12 +1803,13 @@
             };
         }
 
-        let selectedAccessory = null;
-        let interactionMode = 'drag'; // Default interaction mode
-        let startX, startY;
+        let interactionMode = null; // 'drag', 'rotate', or 'scale'
+        let startX, startY; // Starting coordinates for interactions
         let initialAngle = 0;
         let initialMouseAngle = 0;
         let initialDistance = 0;
+        let selectedAccessory = null;
+        const MAX_ACCESSORY_SCALE = 1.5; // Define the maximum scale value for accessories
 
         function drawSelectionOutline(accessory, characterX, characterY, characterWidth, characterHeight) {
             const x = characterX + (characterWidth * accessory.originalX) / 100;
@@ -1823,56 +1819,35 @@
             const centerX = x + width / 2;
             const centerY = y + height / 2;
 
-            // Calculate the corners of the rectangle
-            const corners = [
-                { x: x, y: y },
-                { x: x + width, y: y },
-                { x: x + width, y: y + height },
-                { x: x, y: y + height }
-            ];
-
-            // Rotate the corners around the center
             const angle = accessory.angle * Math.PI / 180;
             const cos = Math.cos(angle);
             const sin = Math.sin(angle);
 
-            const rotatedCorners = corners.map(corner => {
-                const dx = corner.x - centerX;
-                const dy = corner.y - centerY;
-                return {
-                    x: centerX + dx * cos - dy * sin,
-                    y: centerY + dx * sin + dy * cos
-                };
-            });
-
-            // Draw the rotated rectangle
             ctx.save();
+            ctx.translate(centerX, centerY);
+            ctx.rotate(angle);
             ctx.strokeStyle = 'red';
             ctx.lineWidth = 2;
+            ctx.strokeRect(-width / 2, -height / 2, width, height);
+
+            // Rotate button inside the top left corner
+            const rotateButtonX = -width / 2 + 10;
+            const rotateButtonY = -height / 2 + 10;
+            ctx.fillStyle = 'blue';
             ctx.beginPath();
-            ctx.moveTo(rotatedCorners[0].x, rotatedCorners[0].y);
-            for (let i = 1; i < rotatedCorners.length; i++) {
-                ctx.lineTo(rotatedCorners[i].x, rotatedCorners[i].y);
-            }
-            ctx.closePath();
-            ctx.stroke();
+            ctx.arc(rotateButtonX, rotateButtonY, 10, 0, 2 * Math.PI);
+            ctx.fill();
 
-            // Draw the text only if not rotating or scaling
-            if (interactionMode !== 'rotate' && interactionMode !== 'scale') {
-                // Calculate the top-middle point of the rotated rectangle for the text
-                const topMiddleX = (rotatedCorners[0].x + rotatedCorners[1].x) / 2;
-                const topMiddleY = (rotatedCorners[0].y + rotatedCorners[1].y) / 2;
-
-                // Display the instructions text above the bounding box
-                ctx.font = '16px Arial';
-                ctx.fillStyle = 'red';
-                ctx.textAlign = 'center';
-                ctx.fillText('R: Rotate, S: Scale', topMiddleX, topMiddleY - 10);
-            }
+            // Scale button inside the bottom right corner
+            const scaleButtonX = width / 2 - 10;
+            const scaleButtonY = height / 2 - 10;
+            ctx.fillStyle = 'green';
+            ctx.beginPath();
+            ctx.arc(scaleButtonX, scaleButtonY, 10, 0, 2 * Math.PI);
+            ctx.fill();
 
             ctx.restore();
         }
-
 
 
 
@@ -1883,36 +1858,64 @@
 
         function onMouseDown(event) {
             const { offsetX, offsetY } = event;
-            selectedAccessory = getAccessoryAtPosition(offsetX, offsetY);
-            if (selectedAccessory) {
+            const clickedAccessory = getAccessoryAtPosition(offsetX, offsetY);
+
+            if (clickedAccessory) {
+                selectedAccessory = clickedAccessory;
                 startX = offsetX;
                 startY = offsetY;
-                if (interactionMode === 'rotate') {
-                    const centerX = (canvas.width - characterImage.width) / 2 + (characterImage.width * selectedAccessory.originalX) / 100;
-                    const centerY = canvas.height - characterImage.height + (characterImage.height * selectedAccessory.originalY) / 100;
-                    initialAngle = selectedAccessory.angle;
+
+                const { width, height } = getAccessoryImageDimensions(clickedAccessory.image, characterImage.width * characterScale * clickedAccessory.scale, characterImage.height * characterScale * clickedAccessory.scale);
+                const centerX = (canvas.width - characterImage.width * characterScale) / 2 + (characterImage.width * characterScale * clickedAccessory.originalX) / 100 + width / 2;
+                const centerY = canvas.height - characterImage.height * characterScale + (characterImage.height * characterScale * clickedAccessory.originalY) / 100 + height / 2;
+
+                const localX = offsetX - centerX;
+                const localY = offsetY - centerY;
+
+                const angle = clickedAccessory.angle * Math.PI / 180;
+                const cos = Math.cos(-angle);
+                const sin = Math.sin(-angle);
+
+                // Rotate the click point back to align with the accessory's rotation
+                const rotatedX = localX * cos - localY * sin;
+                const rotatedY = localX * sin + localY * cos;
+
+                // Adjusted button positions inside the rotated hitbox
+                const rotateButtonX = -width / 2 + 10;
+                const rotateButtonY = -height / 2 + 10;
+                const scaleButtonX = width / 2 - 10;
+                const scaleButtonY = height / 2 - 10;
+
+                const rotateDist = Math.sqrt((rotatedX - rotateButtonX) ** 2 + (rotatedY - rotateButtonY) ** 2);
+                const scaleDist = Math.sqrt((rotatedX - scaleButtonX) ** 2 + (rotatedY - scaleButtonY) ** 2);
+
+                if (rotateDist < 15) { // Detect click on rotate button
+                    interactionMode = 'rotate';
+                    initialAngle = clickedAccessory.angle;
                     initialMouseAngle = Math.atan2(offsetY - centerY, offsetX - centerX);
-                } else if (interactionMode === 'scale') {
-                    const centerX = (canvas.width - characterImage.width) / 2 + (characterImage.width * selectedAccessory.originalX) / 100;
-                    const centerY = canvas.height - characterImage.height + (characterImage.height * selectedAccessory.originalY) / 100;
+                } else if (scaleDist < 15) { // Detect click on scale button
+                    interactionMode = 'scale';
                     initialDistance = Math.sqrt((offsetX - centerX) ** 2 + (offsetY - centerY) ** 2);
+                } else { // Detect click on accessory itself
+                    interactionMode = 'drag';
                 }
+            } else {
+                selectedAccessory = null;
             }
+
+            drawCanvas();
         }
 
-        const MAX_ACCESSORY_SCALE = 2.0; // Define the maximum scale value for accessories
-
         function onMouseMove(event) {
-            if (!selectedAccessory) return;
+            if (!selectedAccessory || !interactionMode) return;
 
             const { offsetX, offsetY } = event;
             const dx = offsetX - startX;
             const dy = offsetY - startY;
 
-            const characterX = (canvas.width - characterImage.width) / 2;
-            const characterY = canvas.height - characterImage.height;
-            const centerX = characterX + (characterImage.width * selectedAccessory.originalX) / 100;
-            const centerY = characterY + (characterImage.height * selectedAccessory.originalY) / 100;
+            const { width, height } = getAccessoryImageDimensions(selectedAccessory.image, characterImage.width * characterScale * selectedAccessory.scale, characterImage.height * characterScale * selectedAccessory.scale);
+            const centerX = (canvas.width - characterImage.width * characterScale) / 2 + (characterImage.width * characterScale * selectedAccessory.originalX) / 100 + width / 2;
+            const centerY = canvas.height - characterImage.height * characterScale + (characterImage.height * characterScale * selectedAccessory.originalY) / 100 + height / 2;
 
             if (interactionMode === 'drag') {
                 selectedAccessory.originalX += (dx / canvas.width) * 100;
@@ -1922,26 +1925,29 @@
             } else if (interactionMode === 'rotate') {
                 const currentMouseAngle = Math.atan2(offsetY - centerY, offsetX - centerX);
                 const angleDifference = currentMouseAngle - initialMouseAngle;
-                selectedAccessory.angle = initialAngle + angleDifference * (180 / Math.PI);
+                selectedAccessory.angle = initialAngle + (angleDifference * 180 / Math.PI);
             } else if (interactionMode === 'scale') {
+                const initialDistance = Math.sqrt((startX - centerX) ** 2 + (startY - centerY) ** 2);
                 const currentDistance = Math.sqrt((offsetX - centerX) ** 2 + (offsetY - centerY) ** 2);
-                const scaleChange = currentDistance / initialDistance;
-                selectedAccessory.scale = Math.min(MAX_ACCESSORY_SCALE, Math.max(0.1, selectedAccessory.scale * scaleChange)); // Ensure the scale doesn't exceed the maximum
-                initialDistance = currentDistance;
+
+                // Calculate scale factor based on change in distance
+                let scaleFactor = currentDistance / initialDistance;
+                
+                // Apply a smoothing factor for a more gradual change
+                const smoothingFactor = 0.05; // You can adjust this factor for more or less sensitivity
+                selectedAccessory.scale = Math.max(0.1, Math.min(MAX_ACCESSORY_SCALE, selectedAccessory.scale + (scaleFactor - 1) * smoothingFactor));
             }
 
             drawCanvas();
         }
 
 
+
         function onMouseUp() {
-            selectedAccessory = null;
-            interactionMode = 'drag'; // Reset to default interaction mode
-            drawCanvas(); // Redraw the canvas to remove the selection outline
+            interactionMode = null;
         }
 
-        // Function to get accessory at mouse position
-        const getAccessoryAtPosition = (x, y) => {
+        function getAccessoryAtPosition(x, y) {
             const characterX = (canvas.width - characterImage.width * characterScale) / 2;
             const characterY = canvas.height - characterImage.height * characterScale;
 
@@ -1955,34 +1961,30 @@
                 }
             }
             return null;
-        };
-
+        }
 
         function isPointInRotatedRect(px, py, rx, ry, rw, rh, angle) {
-            // Convert angle to radians
-            const rad = angle * Math.PI / 180;
-            const cos = Math.cos(rad);
-            const sin = Math.sin(rad);
+            const centerX = rx + rw / 2;
+            const centerY = ry + rh / 2;
 
-            // Calculate the center of the rectangle
-            const cx = rx + rw / 2;
-            const cy = ry + rh / 2;
+            const cos = Math.cos(angle * Math.PI / 180);
+            const sin = Math.sin(angle * Math.PI / 180);
 
-            // Translate the point to the rectangle's coordinate system
-            const translatedX = px - cx;
-            const translatedY = py - cy;
+            const dx = px - centerX;
+            const dy = py - centerY;
 
-            // Rotate the point back
-            const rotatedX = translatedX * cos + translatedY * sin;
-            const rotatedY = -translatedX * sin + translatedY * cos;
+            const localX = dx * cos + dy * sin;
+            const localY = dy * cos - dx * sin;
 
-            // Translate the point back to the original coordinate system
-            const localX = rotatedX + rw / 2;
-            const localY = rotatedY + rh / 2;
-
-            // Check if the point is within the bounds of the rectangle
-            return localX >= 0 && localX <= rw && localY >= 0 && localY <= rh;
+            return (
+                localX >= -rw / 2 && localX <= rw / 2 &&
+                localY >= -rh / 2 && localY <= rh / 2
+            );
         }
+
+
+
+
 
 
         document.addEventListener('keydown', (event) => {
@@ -2426,6 +2428,9 @@
                 applyVignetteFilterToCanvas();
             }
         }
+
+
+
 
         const scaleRange = document.getElementById('scaleRange');
 
